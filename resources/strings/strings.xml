@@ -1,8 +1,22 @@
 <strings>
     <string id="AppName">Ruter Next</string>
-    <string id="StopIdTitle">StopPlace ID (e.g. NSR:StopPlace:59872)</string>
-    <string id="UseGpsTitle">Find Nearest Stop via GPS</string>
+    <string id="ActiveStopModeTitle">Default Stop Source</string>
+    <string id="ModeGps">GPS Nearest Stop</string>
+    <string id="ModeFav1">Favorite Stop 1</string>
+    <string id="ModeFav2">Favorite Stop 2</string>
+    <string id="ModeFav3">Favorite Stop 3</string>
+    <string id="ModePinned">Pinned Watch Stop</string>
+    <string id="StopQuery1Title">Favorite Stop 1 (Name or NSR:StopPlace:ID)</string>
+    <string id="StopQuery2Title">Favorite Stop 2 (Name or NSR:StopPlace:ID)</string>
+    <string id="StopQuery3Title">Favorite Stop 3 (Name or NSR:StopPlace:ID)</string>
+    <string id="SortByModeTitle">Sort by Transport Mode First, Then Time</string>
     <string id="ClientNameTitle">Entur Client Identifier (ET-Client-Name)</string>
     <string id="Loading">Fetching departures...</string>
     <string id="NoDepartures">No upcoming departures</string>
+    <string id="MenuTitle">Ruter Settings</string>
+    <string id="MenuStopSource">Stop Source</string>
+    <string id="MenuPinCurrent">Pin Current Stop</string>
+    <string id="MenuSortOrder">Sort Order</string>
+    <string id="SortModeAndTime">Mode + Time</string>
+    <string id="SortTimeOnly">Time Only</string>
 </strings>
