@@ -70,7 +70,8 @@ ruter-garmin-widget/
 5. Run unit tests in the simulator:
    ```bash
    monkeyc -f monkey.jungle -d fenix6s -o bin/RuterWidgetTest.prg -y developer_key.der -t
-   monkeydo bin/RuterWidgetTest.prg fenix6s -t
+   # Note: on Windows monkeydo requires /t (forward slash)
+   monkeydo bin/RuterWidgetTest.prg fenix6s /t
    ```
 6. Side-load onto your physical fēnix 6S:
    - Connect your fēnix 6S via USB and copy `bin/RuterWidget.prg` into `GARMIN/APPS/` on the watch drive.

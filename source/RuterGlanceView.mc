@@ -24,7 +24,6 @@ class RuterGlanceView extends WatchUi.GlanceView {
     }
 
     public function onUpdate(dc as Graphics.Dc) as Void {
-        var width = dc.getWidth();
         var height = dc.getHeight();
         var state = self._client.getState();
 
