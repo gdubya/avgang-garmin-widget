@@ -73,11 +73,13 @@ class EnturApiClient {
     }
 
     public function refreshDepartures() as Void {
+        System.println("refreshDepartures called");
         self._state.status = :loading;
         self._state.errorMessage = "";
         WatchUi.requestUpdate();
 
         var mode = self.getActiveStopMode();
+        System.println("Active stop mode: " + mode.toString());
         if (mode == DepartureModel.MODE_GPS) {
             self.requestGpsNearest();
             return;
@@ -147,6 +149,7 @@ class EnturApiClient {
     }
 
     public function resolveStopName(stopName as String) as Void {
+        System.println("resolveStopName: " + stopName);
         self._pendingQueryName = stopName;
         var params = {
             "text" => stopName,
@@ -172,6 +175,7 @@ class EnturApiClient {
         responseCode as Number,
         data as Dictionary or String or Null
     ) as Void {
+        System.println("onReceiveGeocoderResponse: code=" + responseCode.toString());
         if (responseCode == 200 && data instanceof Dictionary) {
             var features = data["features"];
             if (features instanceof Array && features.size() > 0) {
@@ -200,6 +204,7 @@ class EnturApiClient {
     }
 
     public function fetchByStopId(stopId as String) as Void {
+        System.println("fetchByStopId: " + stopId);
         var gql = "{stopPlace(id:\"" + stopId + "\"){id name estimatedCalls(numberOfDepartures:" +
             MAX_DEPARTURES.toString() +
             "){realtime expectedDepartureTime destinationDisplay{frontText}serviceJourney{journeyPattern{line{publicCode transportMode}}}}}}";
@@ -241,6 +246,7 @@ class EnturApiClient {
         responseCode as Number,
         data as Dictionary or String or Null
     ) as Void {
+        System.println("onReceiveGraphQlResponse: code=" + responseCode.toString());
         if (responseCode == 200 && data instanceof Dictionary) {
             var nowEpoch = Time.now().value();
             var parsed = EnturApiClient.parseGraphQlPayload(
