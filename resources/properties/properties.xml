@@ -12,7 +12,7 @@
         <property id="sortByModeFirst" type="boolean">true</property>
 
         <!-- Required Entur ET-Client-Name header -->
-        <property id="clientName" type="string">personal-garmin-ruter-widget</property>
+        <property id="clientName" type="string">personal-garmin-avgang-widget</property>
     </properties>
 
     <settings>

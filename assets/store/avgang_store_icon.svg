@@ -1,0 +1,86 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <!-- Background Gradient -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#080E1E" />
+      <stop offset="50%" stop-color="#0F1B35" />
+      <stop offset="100%" stop-color="#182A4D" />
+    </linearGradient>
+
+    <!-- Transit Cyan Track Gradient -->
+    <linearGradient id="cyanGrad" x1="0%" y1="100%" x2="50%" y2="0%">
+      <stop offset="0%" stop-color="#0066FF" />
+      <stop offset="60%" stop-color="#00D2FF" />
+      <stop offset="100%" stop-color="#80EAFF" />
+    </linearGradient>
+
+    <!-- Transit Coral / Amber Accent Gradient -->
+    <linearGradient id="accentGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FF5252" />
+      <stop offset="100%" stop-color="#FF9100" />
+    </linearGradient>
+
+    <!-- Inner Glow Filter -->
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="8" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+
+    <filter id="softGlow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="16" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <!-- Background Base (Square for Garmin Connect IQ Store) -->
+  <rect width="512" height="512" fill="url(#bgGrad)" />
+
+  <!-- Subtle Concentric Transit Distance / Radar Arcs -->
+  <circle cx="256" cy="220" r="180" fill="none" stroke="#1E3258" stroke-width="2" stroke-dasharray="6 6" opacity="0.6" />
+  <circle cx="256" cy="220" r="130" fill="none" stroke="#253E6B" stroke-width="1.5" opacity="0.4" />
+  <circle cx="256" cy="220" r="80" fill="none" stroke="#2C4A7E" stroke-width="1" opacity="0.3" />
+
+  <!-- Ambient Glow Behind Icon -->
+  <circle cx="256" cy="200" r="100" fill="#00D2FF" opacity="0.12" filter="url(#softGlow)" />
+
+  <!-- Central 'A' Transit Motif -->
+  <!-- Left Ascent Rail -->
+  <path d="M 175 320 L 256 120 L 256 160 L 195 320 Z" fill="url(#cyanGrad)" />
+
+  <!-- Right Ascent Rail -->
+  <path d="M 337 320 L 256 120 L 256 160 L 317 320 Z" fill="#00B4D8" />
+
+  <!-- Modern Dynamic Crossbar / Departure Velocity Vector -->
+  <path d="M 160 252 L 352 252 L 332 232 L 180 232 Z" fill="url(#accentGrad)" filter="url(#glow)" />
+
+  <!-- Center Arrow Apex Glow Point -->
+  <polygon points="256,100 270,135 256,128 242,135" fill="#FFFFFF" filter="url(#glow)" />
+
+  <!-- Transit Node Dots (Representing Multi-modal Stations) -->
+  <circle cx="160" cy="242" r="7" fill="#FF5252" />
+  <circle cx="160" cy="242" r="3" fill="#FFFFFF" />
+
+  <circle cx="352" cy="242" r="7" fill="#FF9100" />
+  <circle cx="352" cy="242" r="3" fill="#FFFFFF" />
+
+  <!-- App Title Typography -->
+  <text x="256" y="390"
+        font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif"
+        font-size="44"
+        font-weight="800"
+        letter-spacing="9"
+        fill="#FFFFFF"
+        text-anchor="middle">AVGANG</text>
+
+  <!-- Subtitle -->
+  <text x="256" y="424"
+        font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif"
+        font-size="16"
+        font-weight="600"
+        letter-spacing="4"
+        fill="#00D2FF"
+        text-anchor="middle">LIVE TRANSIT NORWAY</text>
+
+  <!-- Accent Bottom Border Line -->
+  <rect x="206" y="445" width="100" height="3" rx="1.5" fill="url(#cyanGrad)" />
+</svg>
