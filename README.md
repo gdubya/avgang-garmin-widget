@@ -32,6 +32,43 @@ A native Garmin Connect IQ widget for the **Garmin fēnix 6S** (`fenix6s` / `fen
 
 ---
 
+## On-Watch Configuration & Stop Sources
+
+Hold the **UP / MENU** button inside the widget to open the **Ruter Config** menu.
+
+### 1. Stop Source
+
+Pressing **Stop Source** cycles through 5 transit sources:
+
+| Source | Description | Typical Use Case |
+| :--- | :--- | :--- |
+| **`GPS Nearest Stop`** | Uses watch GPS coordinates to find the nearest bus, tram, metro, train, or ferry stop. | Exploring unfamiliar areas or traveling around town. |
+| **`Fav 1`** *(Default: Jernbanetorget)* | Loads your 1st preset stop configured in phone settings. | Primary morning commute station (e.g. home station). |
+| **`Fav 2`** *(Default: Majorstuen)* | Loads your 2nd preset stop configured in phone settings. | Work, school, or study hub. |
+| **`Fav 3`** *(Default: Nationaltheatret)* | Loads your 3rd preset stop configured in phone settings. | Gym, evening meetup, or weekend spot. |
+| **`Pinned Stop`** | Loads the stop saved directly on the watch via **Pin Current Stop**. | Instant indoor access without GPS lock or phone setup. |
+
+> **Tip:** You can customize the stop names or IDs for Favorites 1–3 anytime in the **Garmin Connect Mobile app** under *App Settings*.
+
+### 2. How to Use "Pin Current Stop"
+
+#### The Problem it Solves:
+GPS cannot reliably acquire satellite lock indoors (e.g. inside your apartment, hallway, or office before heading out), and typing a new stop name in the mobile app settings is tedious when you are on the go.
+
+#### Step-by-Step Walkthrough:
+1. When you are outdoors near a transit stop you frequently use, cycle **Stop Source** to **`GPS Nearest Stop`** and wait for the departures to load.
+2. Hold **UP / MENU** to open the config menu.
+3. Select **Pin Current Stop** (press **START**).
+4. The menu updates to display `Saved: <Stop Name>` and automatically switches your active source to **Pinned**.
+5. **From now on**, whenever you check the widget before stepping out the door, it will instantly fetch live countdowns for that exact stop with **zero GPS wait** and **no phone configuration required**.
+
+### 3. Sort Order
+Toggles between:
+* **`Mode + Time` (Default)**: Groups departures by transit mode (prioritizing whichever mode has the earliest departure) and sorts chronologically within each mode.
+* **`Time Only`**: Pure chronological order across all modes.
+
+---
+
 ## Project Structure
 
 ```text
@@ -39,7 +76,7 @@ ruter-garmin-widget/
 ├── manifest.xml                  # Connect IQ app metadata, target devices & permissions
 ├── monkey.jungle                 # Monkey C build configuration
 ├── resources/
-│   ├── drawables/                # 30x30 LauncherIcon bitmap
+│   ├── drawables/                # 40x40 LauncherIcon bitmap
 │   ├── properties/               # Mobile App Settings & Properties (activeStopMode, stopQuery1..3, sortByModeFirst)
 │   └── strings/                  # UI & Settings strings
 └── source/
