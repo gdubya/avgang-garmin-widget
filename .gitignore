@@ -1,0 +1,16 @@
+# Connect IQ build outputs
+bin/
+*.prg
+*.iq
+*.prg.debug.xml
+*.mir
+
+# Developer keys (never commit private keys)
+*.der
+*.pem
+developer_key*
+
+# IDE / OS files
+.vscode/
+.DS_Store
+Thumbs.db

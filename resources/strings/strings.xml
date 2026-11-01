@@ -1,0 +1,8 @@
+<strings>
+    <string id="AppName">Ruter Next</string>
+    <string id="StopIdTitle">StopPlace ID (e.g. NSR:StopPlace:59872)</string>
+    <string id="UseGpsTitle">Find Nearest Stop via GPS</string>
+    <string id="ClientNameTitle">Entur Client Identifier (ET-Client-Name)</string>
+    <string id="Loading">Fetching departures...</string>
+    <string id="NoDepartures">No upcoming departures</string>
+</strings>

@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<iq:manifest xmlns:iq="http://www.garmin.com/xml/connectiq" version="3">
+    <iq:application
+        entry="RuterWidgetApp"
+        id="e8a15c42-9b14-4d38-a762-4c91b8f03e21"
+        launcherIcon="@Drawables.LauncherIcon"
+        minSdkVersion="3.2.0"
+        name="@Strings.AppName"
+        type="widget"
+        version="0.1.0">
+        <iq:products>
+            <iq:product id="fenix6s"/>
+            <iq:product id="fenix6spro"/>
+        </iq:products>
+        <iq:permissions>
+            <iq:uses-permission id="Communications"/>
+            <iq:uses-permission id="Positioning"/>
+        </iq:permissions>
+        <iq:languages>
+            <iq:language>eng</iq:language>
+            <iq:language>nob</iq:language>
+        </iq:languages>
+        <iq:barrels/>
+    </iq:application>
+</iq:manifest>
