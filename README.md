@@ -1,6 +1,8 @@
 # Ruter / Entur Garmin Widget (`ruter-garmin-widget`)
 
-A native Garmin Connect IQ widget for the **Garmin fēnix 6S** (`fenix6s` / `fenix6spro`) that displays real-time public transport countdowns in Norway directly from the **Entur JourneyPlanner v3 GraphQL API** and **Entur Geocoder API**.
+A native Garmin Connect IQ widget displaying real-time public transport countdowns in Norway directly from the **Entur JourneyPlanner v3 GraphQL API** and **Entur Geocoder API**.
+
+> **Device Compatibility Note:** This widget was **developed primarily and optimized for the Garmin fēnix 6S** (`fenix6s` / `fenix6spro`). It is also built and packaged for other circular Garmin watches with identical or similar screen layouts (fēnix 6/7 series, Epix 2, Forerunner 255/265/955/965, and Enduro), but UI elements and font sizing were tuned specifically for the fēnix 6S display.
 
 ---
 
