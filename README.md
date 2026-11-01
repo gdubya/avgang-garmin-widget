@@ -74,7 +74,7 @@ Toggles between:
 ## Project Structure
 
 ```text
-ruter-garmin-widget/
+avgang-garmin-widget/
 ├── manifest.xml                  # Connect IQ app metadata, target devices & permissions
 ├── monkey.jungle                 # Monkey C build configuration
 ├── resources/

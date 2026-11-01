@@ -38,7 +38,7 @@ Public transport schedule data, live departures, and geocoding services are retr
 
 ## 3. Open Source Transparency
 
-This Widget is an open-source project. Its complete source code is publicly accessible and auditable on GitHub at [github.com/gdubya/ruter-garmin-widget](https://github.com/gdubya/ruter-garmin-widget).
+This Widget is an open-source project. Its complete source code is publicly accessible and auditable on GitHub at [github.com/gdubya/avgang-garmin-widget](https://github.com/gdubya/avgang-garmin-widget).
 
 ---
 
@@ -50,4 +50,4 @@ If changes are made to this Privacy Policy, the updated document will be publish
 
 ## 5. Contact
 
-If you have questions or concerns regarding this Privacy Policy, please open an issue in the [GitHub issue tracker](https://github.com/gdubya/ruter-garmin-widget/issues).
+If you have questions or concerns regarding this Privacy Policy, please open an issue in the [GitHub issue tracker](https://github.com/gdubya/avgang-garmin-widget/issues).
