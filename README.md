@@ -1,4 +1,4 @@
-# Ruter / Entur Garmin Widget (`ruter-garmin-widget`)
+# Avgang — Live Transit Norway
 
 A native Garmin Connect IQ widget displaying real-time public transport countdowns in Norway directly from the **Entur JourneyPlanner v3 GraphQL API** and **Entur Geocoder API**.
 

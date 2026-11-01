@@ -2,7 +2,7 @@
 
 **Last Updated:** November 1, 2026
 
-This Privacy Policy describes how the **Norwegian Public Transport Garmin Widget** ("the Widget") handles your data. We believe in complete privacy: the Widget has no third-party tracking, no developer backends, and collects zero personal data.
+This Privacy Policy describes how the **Avgang - Live Transit Norway** widget ("the Widget") handles your data. We believe in complete privacy: the Widget has no third-party tracking, no developer backends, and collects zero personal data.
 
 ---
 

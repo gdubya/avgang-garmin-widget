@@ -91,7 +91,7 @@ module DepartureModel {
     (:glance)
     class StopBoardState {
         public var stopId as String = "";
-        public var stopName as String = "Ruter Next";
+        public var stopName as String = "Avgang";
         public var distanceMeters as Number or Null = null;
         public var departures as Array<DepartureItem> = [] as Array<DepartureItem>;
         public var scrollOffset as Number = 0;

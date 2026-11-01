@@ -221,6 +221,6 @@ class RuterWidgetView extends WatchUi.View {
         } else if (mode == DepartureModel.MODE_PINNED) {
             return "PINNED STOP";
         }
-        return "RUTER";
+        return "AVGANG";
     }
 }

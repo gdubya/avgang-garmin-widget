@@ -1,5 +1,6 @@
 <strings>
-    <string id="AppName">Ruter Next</string>
+    <string id="AppName">Avgang</string>
+    <string id="AppDescription">Live Transit Norway</string>
     <string id="ActiveStopModeTitle">Default Stop Source</string>
     <string id="ModeGps">GPS Nearest Stop</string>
     <string id="ModeFav1">Favorite Stop 1</string>
@@ -13,7 +14,7 @@
     <string id="ClientNameTitle">Entur Client Identifier (ET-Client-Name)</string>
     <string id="Loading">Fetching departures...</string>
     <string id="NoDepartures">No upcoming departures</string>
-    <string id="MenuTitle">Ruter Settings</string>
+    <string id="MenuTitle">Avgang Settings</string>
     <string id="MenuStopSource">Stop Source</string>
     <string id="MenuPinCurrent">Pin Current Stop</string>
     <string id="MenuSortOrder">Sort Order</string>

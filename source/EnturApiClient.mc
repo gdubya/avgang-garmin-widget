@@ -69,7 +69,7 @@ class EnturApiClient {
         if (clientName instanceof String && clientName.length() > 0) {
             return clientName;
         }
-        return "personal-garmin-ruter-widget";
+        return "personal-garmin-avgang-widget";
     }
 
     public function refreshDepartures() as Void {

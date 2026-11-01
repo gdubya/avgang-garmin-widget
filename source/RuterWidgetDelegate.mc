@@ -44,7 +44,7 @@ class RuterWidgetDelegate extends WatchUi.BehaviorDelegate {
 
     // Hold UP / MENU button: open on-watch configuration menu
     public function onMenu() as Boolean {
-        var menu = new WatchUi.Menu2({ :title => "Ruter Config" });
+        var menu = new WatchUi.Menu2({ :title => "Avgang Config" });
 
         menu.addItem(new WatchUi.MenuItem(
             "Stop Source",
