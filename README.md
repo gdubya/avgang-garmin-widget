@@ -120,3 +120,15 @@ ruter-garmin-widget/
 ## Privacy Policy
 
 This widget respects your privacy: zero trackers, zero developer backends, and no personal data collection. Read the full [Privacy Policy](PRIVACY.md).
+
+---
+
+## Data Attribution & Licensing
+
+### Public Transport Data
+Contains public transit data delivered by **Entur AS** made available under the [Norwegian License for Open Government Data (NLOD 2.0)](https://data.norge.no/nlod/en/2.0) and [Creative Commons Attribution 4.0 International (CC BY 4.0)](https://creativecommons.org/licenses/by/4.0/).
+
+This application is independent and not affiliated with, endorsed by, or operated by Ruter AS or Entur AS.
+
+### Software License
+This project is open-source software licensed under the [MIT License](LICENSE).
