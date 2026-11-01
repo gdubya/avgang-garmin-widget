@@ -114,3 +114,9 @@ ruter-garmin-widget/
    ```
 6. Side-load onto your physical fēnix 6S:
    - Connect your fēnix 6S via USB and copy `bin/RuterWidget.prg` into `GARMIN/APPS/` on the watch drive.
+
+---
+
+## Privacy Policy
+
+This widget respects your privacy: zero trackers, zero developer backends, and no personal data collection. Read the full [Privacy Policy](PRIVACY.md).
