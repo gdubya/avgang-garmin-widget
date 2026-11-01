@@ -1,68 +1,75 @@
 # Avgang — Live Transit Norway
 
-A native Garmin Connect IQ widget displaying real-time public transport countdowns in Norway directly from the **Entur JourneyPlanner v3 GraphQL API** and **Entur Geocoder API**.
+![Avgang Hero Banner](assets/store/avgang_hero_image.png)
 
-> **Device Compatibility Note:** This widget was **developed primarily and optimized for the Garmin fēnix 6S** (`fenix6s` / `fenix6spro`). It is also built and packaged for other circular Garmin watches with identical or similar screen layouts (fēnix 6/7 series, Epix 2, Forerunner 255/265/955/965, and Enduro), but UI elements and font sizing were tuned specifically for the fēnix 6S display.
+A native Garmin Connect IQ widget displaying real-time public transport countdowns across Norway directly from the **Entur JourneyPlanner v3 GraphQL API** and **Entur Geocoder API**.
+
+> **Device Compatibility Note:** This widget was **developed primarily and optimized for the Garmin fēnix 6S** (`fenix6s` / `fenix6spro`). It is also built and packaged for other circular Garmin watches with identical or similar screen layouts (fēnix 6/7 series, Epix 2, Forerunner 255/265/955/965, and Enduro), with UI elements and font sizing tuned specifically for the fēnix 6S display.
 
 ---
 
-## Features (Option A — Direct Watch-to-Entur)
+## Visual Overview
+
+| Multi-Modal Board | Train Departures | Widget Glance | On-Watch Config |
+| :---: | :---: | :---: | :---: |
+| <img src="assets/store/screenshots/screenshot1_multi_modal.png" width="180" alt="Multi-Modal Board" /> | <img src="assets/store/screenshots/screenshot2_rail_departures.png" width="180" alt="Train Departures" /> | <img src="assets/store/screenshots/screenshot3_glance_view.png" width="180" alt="Glance View" /> | <img src="assets/store/screenshots/screenshot4_config_menu.png" width="180" alt="Config Menu" /> |
+| Metro, Tram & Bus | Regional & Commuter Rail | Live Widget Glance | Stop Source & Pin Menu |
+
+---
+
+## Features
 
 1. **Zero Backend Required**:
    - Communicates directly with `https://api.entur.io/journey-planner/v3/graphql` and `https://api.entur.io/geocoder/v1/autocomplete` over Bluetooth via Garmin Connect Mobile.
-   - Compact GraphQL query (~850 bytes response for 8 departures) engineered to stay safely inside the fēnix 6S 64 KB widget / 32 KB glance memory limits.
-2. **Mobile + On-Watch Stop Configuration**:
-   - **Garmin Connect Mobile App Settings**: Configure up to 3 favorite stops (`stopQuery1`, `stopQuery2`, `stopQuery3`) using **either a human-readable stop name** (e.g. `"Jernbanetorget"`, `"Majorstuen"`, `"Nationaltheatret"`) **or an explicit ID** (`"NSR:StopPlace:59872"`). Stop names are resolved automatically via Entur's Geocoder API and cached in on-watch storage.
-   - **On-Watch `Menu2` Settings (Hold UP/MENU)**:
-     - **Stop Source**: Switch between `GPS Nearest Stop`, `Favorite 1..3`, or `Pinned Watch Stop`.
-     - **Pin Current Stop**: Save a stop discovered via GPS directly to the watch for instant indoor use.
-     - **Sort Order**: Toggle between `Mode + Time` and `Time Only`.
-3. **Multi-Modal Sorting & Color Badges**:
-   - Supports all Norwegian transit modes: **Bus (`BUS`)**, **T-bane (`T-B`)**, **Tram (`TRK`)**, **Train (`TOG`)**, and **Ferry (`BAT`)**.
-   - Groups departures by transport mode (ordered by whichever mode has the soonest departure first) and sorts chronologically within each mode.
+   - Ultra-compact GraphQL queries engineered to stay safely within Garmin's memory budget.
+
+2. **Multi-Modal Color Badges**:
+   - Supports all Norwegian public transit modes: **Bus (`BUS`)**, **T-bane / Metro (`T-B`)**, **Tram / Trikk (`TRK`)**, **Train (`TOG`)**, and **Ferry / Boat (`BAT`)**.
+   - Chronological sorting grouped by transit mode (whichever mode departs soonest is placed first).
+
+3. **5 Flexible Stop Sources**:
+   - **`GPS Nearest Stop`**: Uses your watch's GPS to find the closest transit stop wherever you are standing.
+   - **`Favorites 1–3`**: Preset stops configured in the Garmin Connect Mobile app by human-readable name (e.g. `"Jernbanetorget"`, `"Majorstuen"`) or NSR Stop ID (`"NSR:StopPlace:59872"`).
+   - **`Pinned Stop`**: Save any stop directly on the watch for instant indoor lookups before walking out the door.
 
 ---
 
-## fēnix 6S Button Controls
+## On-Watch Controls
 
-| Watch Button | Action |
+| Button | Action |
 | :--- | :--- |
 | **START / STOP** (Top-Right) | Immediately refresh live departures from Entur |
 | **DOWN** (Bottom-Left) | Scroll down through upcoming departures |
 | **UP** (Middle-Left) | Scroll up through upcoming departures |
-| **Hold UP / MENU** (Middle-Left) | Open on-watch `Ruter Config` menu (Stop Source, Pin Stop, Sort Order) |
+| **Hold UP / MENU** (Middle-Left) | Open on-watch **Avgang Config** menu |
 
 ---
 
 ## On-Watch Configuration & Stop Sources
 
-Hold the **UP / MENU** button inside the widget to open the **Ruter Config** menu.
+Hold the **UP / MENU** button inside the widget to open the **Avgang Config** menu.
 
 ### 1. Stop Source
-
-Pressing **Stop Source** cycles through 5 transit sources:
+Pressing **Stop Source** cycles through the 5 transit sources:
 
 | Source | Description | Typical Use Case |
 | :--- | :--- | :--- |
-| **`GPS Nearest Stop`** | Uses watch GPS coordinates to find the nearest bus, tram, metro, train, or ferry stop. | Exploring unfamiliar areas or traveling around town. |
-| **`Fav 1`** *(Default: Jernbanetorget)* | Loads your 1st preset stop configured in phone settings. | Primary morning commute station (e.g. home station). |
+| **`GPS Nearest Stop`** | Uses watch GPS coordinates to find the nearest stop place. | Exploring unfamiliar areas or traveling around town. |
+| **`Fav 1`** *(Default: Jernbanetorget)* | Loads your 1st preset stop configured in phone settings. | Primary morning commute station. |
 | **`Fav 2`** *(Default: Majorstuen)* | Loads your 2nd preset stop configured in phone settings. | Work, school, or study hub. |
 | **`Fav 3`** *(Default: Nationaltheatret)* | Loads your 3rd preset stop configured in phone settings. | Gym, evening meetup, or weekend spot. |
 | **`Pinned Stop`** | Loads the stop saved directly on the watch via **Pin Current Stop**. | Instant indoor access without GPS lock or phone setup. |
 
-> **Tip:** You can customize the stop names or IDs for Favorites 1–3 anytime in the **Garmin Connect Mobile app** under *App Settings*.
+> **Tip:** You can customize favorite stop names anytime in the **Garmin Connect Mobile app** under *App Settings*.
 
-### 2. How to Use "Pin Current Stop"
-
-#### The Problem it Solves:
-GPS cannot reliably acquire satellite lock indoors (e.g. inside your apartment, hallway, or office before heading out), and typing a new stop name in the mobile app settings is tedious when you are on the go.
-
-#### Step-by-Step Walkthrough:
-1. When you are outdoors near a transit stop you frequently use, cycle **Stop Source** to **`GPS Nearest Stop`** and wait for the departures to load.
-2. Hold **UP / MENU** to open the config menu.
-3. Select **Pin Current Stop** (press **START**).
-4. The menu updates to display `Saved: <Stop Name>` and automatically switches your active source to **Pinned**.
-5. **From now on**, whenever you check the widget before stepping out the door, it will instantly fetch live countdowns for that exact stop with **zero GPS wait** and **no phone configuration required**.
+### 2. How to Use "Pin Current Stop" (Indoor Shortcut)
+* **The Problem:** GPS cannot reliably acquire satellite lock indoors (inside your apartment, hallway, or office before heading out), and typing a new stop name in the mobile app settings is tedious on the go.
+* **How to Use:**
+  1. While outdoors near a stop you use regularly, cycle **Stop Source** to **`GPS Nearest Stop`** and wait for departures to load.
+  2. Hold **UP / MENU** to open the config menu.
+  3. Select **Pin Current Stop** (press **START**).
+  4. The menu updates to `Saved: <Stop Name>` and switches your active source to **Pinned**.
+  5. Whenever you check the widget before stepping out the door, it will instantly fetch live countdowns for that exact stop with **zero GPS wait** and **no phone typing needed**.
 
 ### 3. Sort Order
 Toggles between:
@@ -71,49 +78,40 @@ Toggles between:
 
 ---
 
-## Project Structure
+## Quick Start & Sideloading
 
-```text
-avgang-garmin-widget/
-├── manifest.xml                  # Connect IQ app metadata, target devices & permissions
-├── monkey.jungle                 # Monkey C build configuration
-├── resources/
-│   ├── drawables/                # 40x40 LauncherIcon bitmap
-│   ├── properties/               # Mobile App Settings & Properties (activeStopMode, stopQuery1..3, sortByModeFirst)
-│   └── strings/                  # UI & Settings strings
-└── source/
-    ├── RuterWidgetApp.mc         # (:glance) Application entry point & settings listener
-    ├── DepartureModel.mc         # (:glance) Data models & Mode+Time sorting algorithm
-    ├── EnturApiClient.mc         # (:glance) Entur GraphQL + Geocoder client & ISO-8601 parser
-    ├── RuterGlanceView.mc        # (:glance) Widget carousel glance view
-    ├── RuterWidgetView.mc        # 240x240 circular multi-modal departure board
-    ├── RuterWidgetDelegate.mc    # Button handling & on-watch Menu2 configuration delegate
-    └── EnturParserTest.mc        # (:test) Unit tests for ISO-8601 parsing & Mode+Time sorting
-```
+To install the widget directly onto your physical Garmin watch:
+
+1. Connect your watch to your computer via USB.
+2. In File Explorer, navigate to the watch drive: `GARMIN/APPS/`.
+3. Copy `bin/Avgang.prg` into the `GARMIN/APPS/` folder.
+4. Safely eject the watch. The widget will appear in your glance loop!
 
 ---
 
-## Building & Running in the Connect IQ Simulator
+## Building & Running in the Simulator
 
 1. Install the **Garmin Connect IQ SDK Manager** and the **Monkey C** VS Code extension.
-2. Download the **fēnix 6S** (`fenix6s` / `fenix6spro`) device definitions in the SDK Manager.
-3. Generate a developer key if you don't already have one:
+2. Download target device definitions (e.g. `fenix6s`) in the SDK Manager.
+3. Generate a developer signing key:
    ```bash
    openssl genrsa -out developer_key.pem 4096
    openssl pkcs8 -topk8 -inform PEM -outform DER -in developer_key.pem -out developer_key.der -nocrypt
    ```
 4. Compile for `fenix6s`:
    ```bash
-   monkeyc -f monkey.jungle -d fenix6s -o bin/RuterWidget.prg -y developer_key.der -w
+   monkeyc -f monkey.jungle -d fenix6s -o bin/Avgang.prg -y developer_key.der -r -w
    ```
 5. Run unit tests in the simulator:
    ```bash
-   monkeyc -f monkey.jungle -d fenix6s -o bin/RuterWidgetTest.prg -y developer_key.der -t
+   monkeyc -f monkey.jungle -d fenix6s -o bin/AvgangTest.prg -y developer_key.der -t
    # Note: on Windows monkeydo requires /t (forward slash)
-   monkeydo bin/RuterWidgetTest.prg fenix6s /t
+   monkeydo bin/AvgangTest.prg fenix6s /t
    ```
-6. Side-load onto your physical fēnix 6S:
-   - Connect your fēnix 6S via USB and copy `bin/RuterWidget.prg` into `GARMIN/APPS/` on the watch drive.
+6. Package for Connect IQ Store:
+   ```bash
+   monkeyc -e -f monkey.jungle -o bin/Avgang.iq -y developer_key.der -r -w
+   ```
 
 ---
 
