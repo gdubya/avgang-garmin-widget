@@ -4,7 +4,7 @@
 
 A native Garmin Connect IQ widget displaying real-time public transport countdowns across Norway directly from the **Entur JourneyPlanner v3 GraphQL API** and **Entur Geocoder API**.
 
-> **Device Compatibility Note:** This widget was **developed primarily and optimized for the Garmin fēnix 6S** (`fenix6s` / `fenix6spro`). It is also built and packaged for other circular Garmin watches with identical or similar screen layouts (fēnix 6/7 series, Epix 2, Forerunner 255/265/955/965, and Enduro), with UI elements and font sizing tuned specifically for the fēnix 6S display.
+> **Device Compatibility Note:** This widget was **developed primarily and optimized for the Garmin fēnix 6S** (`fenix6s` / `fenix6spro`). It is also built and packaged for other circular Garmin watches with identical or similar screen layouts (fēnix 6/7/8 series, fēnix E, Epix 2, Forerunner 255/265/955/965, and Enduro / Enduro 3), with UI elements and font sizing tuned specifically for the fēnix 6S display.
 
 ---
 
