@@ -154,4 +154,25 @@ module EnturParserTest {
 
         return true;
     }
+
+    (:test)
+    function testChordHalfWidth(logger as Test.Logger) as Boolean {
+        // At vertical equator on 454x454 with 11px margin: effective radius is 216
+        var eqHalf = RuterWidgetView.computeChordHalfWidth(210, 244, 454, 454, 11);
+        Test.assert(eqHalf >= 214 && eqHalf <= 216);
+
+        // Near top on 454x454 (y=27..64): chord width must be strictly narrower than equator
+        var topHalf = RuterWidgetView.computeChordHalfWidth(31, 64, 454, 454, 11);
+        Test.assert(topHalf > 75 && topHalf < 100);
+
+        // Outside effective circle returns 0
+        var outHalf = RuterWidgetView.computeChordHalfWidth(0, 5, 454, 454, 11);
+        Test.assertEqual(0, outHalf);
+
+        // 240x240 row band (y=60..190) stays safely inside bezel
+        var f6Half = RuterWidgetView.computeChordHalfWidth(60, 190, 240, 240, 6);
+        Test.assert(f6Half > 85 && f6Half < 105);
+
+        return true;
+    }
 }
