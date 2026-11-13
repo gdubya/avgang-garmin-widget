@@ -12,6 +12,62 @@ module DepartureModel {
         MODE_PINNED = 4
     }
 
+    // Parses a user-entered line filter such as "17, 31;5" into normalized
+    // upper-case public codes ["17", "31", "5"]. Separators are commas and
+    // semicolons; surrounding whitespace, quotes and backslashes are stripped.
+    function parseRouteFilter(raw as String or Null) as Array<String> {
+        var codes = [] as Array<String>;
+        if (raw == null) {
+            return codes;
+        }
+        var chars = raw.toCharArray();
+        var current = "";
+        for (var i = 0; i <= chars.size(); i++) {
+            var isEnd = (i == chars.size());
+            var c = isEnd ? ',' : chars[i];
+            if (c == ',' || c == ';') {
+                var code = trimSpaces(current).toUpper();
+                if (code.length() > 0 && codes.indexOf(code) < 0) {
+                    codes.add(code);
+                }
+                current = "";
+            } else if (c != '"' && c != '\\') {
+                current = current + c.toString();
+            }
+        }
+        return codes;
+    }
+
+    function trimSpaces(s as String) as String {
+        var chars = s.toCharArray();
+        var start = 0;
+        var end = chars.size();
+        while (start < end && (chars[start] == ' ' || chars[start] == '\t')) {
+            start++;
+        }
+        while (end > start && (chars[end - 1] == ' ' || chars[end - 1] == '\t')) {
+            end--;
+        }
+        return s.substring(start, end) as String;
+    }
+
+    // Human-readable filter label, e.g. "17,31"
+    function joinCodes(codes as Array<String>) as String {
+        var out = "";
+        for (var i = 0; i < codes.size(); i++) {
+            out = (i == 0) ? codes[i] : (out + "," + codes[i]);
+        }
+        return out;
+    }
+
+    // True when the filter is empty (show everything) or contains the line code
+    function matchesRouteFilter(lineCode as String, codes as Array<String>) as Boolean {
+        if (codes.size() == 0) {
+            return true;
+        }
+        return codes.indexOf(lineCode.toUpper()) >= 0;
+    }
+
     (:glance)
     class DepartureItem {
         public var transportMode as String;
@@ -98,6 +154,8 @@ module DepartureModel {
         public var status as Symbol = :idle;
         public var errorMessage as String = "";
         public var lastUpdatedEpoch as Number = 0;
+        // Line public codes the current board is filtered to (empty = all lines)
+        public var routeFilter as Array<String> = [] as Array<String>;
 
         public function initialize() {
         }

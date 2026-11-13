@@ -134,7 +134,7 @@ module EnturParserTest {
             }
         };
 
-        var ok = EnturApiClient.parseGraphQlPayload(mockPayload, state, now, true);
+        var ok = EnturApiClient.parseGraphQlPayload(mockPayload, state, now, true, [] as Array<String>);
         Test.assert(ok);
         Test.assertEqual("NSR:StopPlace:58366", state.stopId);
         Test.assertEqual("Jernbanetorget", state.stopName);
@@ -152,6 +152,61 @@ module EnturParserTest {
         Test.assertEqual("Grorud T", bus.destination);
         Test.assert(!bus.isRealtime);
 
+        // Same payload filtered to line 31 only keeps the bus
+        var filtered = new DepartureModel.StopBoardState();
+        Test.assert(EnturApiClient.parseGraphQlPayload(mockPayload, filtered, now, true, ["31"] as Array<String>));
+        Test.assertEqual(1, filtered.departures.size());
+        Test.assertEqual("31", filtered.departures[0].lineCode);
+
+        return true;
+    }
+
+    (:test)
+    function testParseRouteFilter(logger as Test.Logger) as Boolean {
+        var codes = DepartureModel.parseRouteFilter(" 17, 31e ;5,,17 , \"x\\ ");
+        Test.assertEqual(4, codes.size());
+        Test.assertEqual("17", codes[0]);
+        Test.assertEqual("31E", codes[1]);
+        Test.assertEqual("5", codes[2]);
+        Test.assertEqual("X", codes[3]);
+        Test.assertEqual("17,31E,5,X", DepartureModel.joinCodes(codes));
+
+        Test.assertEqual(0, DepartureModel.parseRouteFilter("").size());
+        Test.assertEqual(0, DepartureModel.parseRouteFilter(" , ; ").size());
+        Test.assertEqual(0, DepartureModel.parseRouteFilter(null).size());
+        return true;
+    }
+
+    (:test)
+    function testMatchesRouteFilter(logger as Test.Logger) as Boolean {
+        var empty = [] as Array<String>;
+        Test.assert(DepartureModel.matchesRouteFilter("31", empty));
+        var codes = ["17", "31E"] as Array<String>;
+        Test.assert(DepartureModel.matchesRouteFilter("17", codes));
+        Test.assert(DepartureModel.matchesRouteFilter("31e", codes));
+        Test.assert(!DepartureModel.matchesRouteFilter("31", codes));
+        Test.assert(!DepartureModel.matchesRouteFilter("1", codes));
+        return true;
+    }
+
+    (:test)
+    function testParseLineIds(logger as Test.Logger) as Boolean {
+        var payload = {
+            "data" => {
+                "lines" => [
+                    { "id" => "RUT:Line:17" },
+                    { "id" => "SKY:Line:31" },
+                    { "foo" => "bar" }
+                ]
+            }
+        };
+        var ids = EnturApiClient.parseLineIds(payload);
+        Test.assert(ids != null);
+        Test.assertEqual(2, ids.size());
+        Test.assertEqual("RUT:Line:17", ids[0]);
+        Test.assertEqual("SKY:Line:31", ids[1]);
+
+        Test.assert(EnturApiClient.parseLineIds({ "errors" => [] }) == null);
         return true;
     }
 

@@ -111,6 +111,10 @@ class RuterWidgetView extends WatchUi.View {
 
         var total = state.departures.size();
         var sortTag = self._client.getSortByModeFirst() ? "Mode+Time" : "Time Only";
+        var filterActive = state.routeFilter.size() > 0;
+        if (filterActive) {
+            sortTag = "Lines " + DepartureModel.joinCodes(state.routeFilter);
+        }
         var footer = sortTag + " • Hold UP: Menu";
         if (total > VISIBLE_ROWS) {
             var endIdx = state.scrollOffset + VISIBLE_ROWS;
@@ -132,7 +136,7 @@ class RuterWidgetView extends WatchUi.View {
         var bodyBottom = footerDivY - vGap;
         var bodyHeight = bodyBottom - bodyTop;
         if (total == 0) {
-            var msg = "No departures";
+            var msg = filterActive ? "No departures on your lines" : "No departures";
             var msgColor = Graphics.COLOR_LT_GRAY;
             if (state.status == :loading) {
                 msg = "Fetching Entur...";

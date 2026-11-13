@@ -32,6 +32,9 @@ A native Garmin Connect IQ widget displaying real-time public transport countdow
    - **`Favorites 1–3`**: Preset stops configured in the Garmin Connect Mobile app by human-readable name (e.g. `"Jernbanetorget"`, `"Majorstuen"`) or NSR Stop ID (`"NSR:StopPlace:59872"`).
    - **`Pinned Stop`**: Save any stop directly on the watch for instant indoor lookups before walking out the door.
 
+4. **Favorite Lines Filter**:
+   - Configure one or more favorite lines (e.g. `17, 31`) to only show those routes at whichever stop is active.
+
 ---
 
 ## On-Watch Controls
@@ -75,6 +78,18 @@ Pressing **Stop Source** cycles through the 5 transit sources:
 Toggles between:
 * **`Mode + Time` (Default)**: Groups departures by transit mode (prioritizing whichever mode has the earliest departure) and sorts chronologically within each mode.
 * **`Time Only`**: Pure chronological order across all modes.
+
+### 4. Favorite Lines (Line Filter)
+Only interested in certain routes? Enter them in the **Garmin Connect Mobile app** under *App Settings → Favorite Lines* as a comma-separated list of line numbers, e.g. `17, 31, 5`.
+
+* The filter applies on top of **every** stop source (GPS, Favorites 1–3, Pinned): only departures on your favorite lines are shown, so you always see your next 8 relevant departures, even at busy hubs like Jernbanetorget.
+* Line numbers match exactly (case-insensitive): `31` does **not** include `31E`.
+* Leave the field empty to show all lines.
+* Toggle the filter on the watch with **Line Filter** in the config menu (`On: 17,31` / `Off (all lines)`). When it's on, the footer shows `Lines 17,31`.
+
+> **Note (GPS Nearest Stop):** the filter does not change *which* stop is selected. GPS mode still picks the physically nearest stop and then filters its departures, so if none of your favorite lines serve that stop you'll see `No departures on your lines`. Switch the filter off from the watch menu, or use a Favorite/Pinned stop on your line.
+
+> **How it works:** line numbers are resolved once via Entur's `lines(publicCodes:)` query into line IDs (e.g. `RUT:Line:17`), cached on the watch for 7 days, and passed as a server-side `whiteListed` filter on departures.
 
 ---
 

@@ -11,6 +11,8 @@
     <string id="StopQuery2Title">Favorite Stop 2 (Name or NSR:StopPlace:ID)</string>
     <string id="StopQuery3Title">Favorite Stop 3 (Name or NSR:StopPlace:ID)</string>
     <string id="SortByModeTitle">Sort by Transport Mode First, Then Time</string>
+    <string id="RouteFilterTitle">Favorite Lines (comma-separated, e.g. 17, 31). Empty = all lines</string>
+    <string id="RouteFilterEnabledTitle">Only Show Favorite Lines</string>
     <string id="ClientNameTitle">Entur Client Identifier (ET-Client-Name)</string>
     <string id="Loading">Fetching departures...</string>
     <string id="NoDepartures">No upcoming departures</string>
