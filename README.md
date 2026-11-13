@@ -87,6 +87,8 @@ Only interested in certain routes? Enter them in the **Garmin Connect Mobile app
 * Leave the field empty to show all lines.
 * Toggle the filter on the watch with **Line Filter** in the config menu (`On: 17,31` / `Off (all lines)`). When it's on, the footer shows `Lines 17,31`.
 
+> **Note (GPS Nearest Stop):** the filter does not change *which* stop is selected. GPS mode still picks the physically nearest stop and then filters its departures, so if none of your favorite lines serve that stop you'll see `No departures on your lines`. Switch the filter off from the watch menu, or use a Favorite/Pinned stop on your line.
+
 > **How it works:** line numbers are resolved once via Entur's `lines(publicCodes:)` query into line IDs (e.g. `RUT:Line:17`), cached on the watch for 7 days, and passed as a server-side `whiteListed` filter on departures.
 
 ---
