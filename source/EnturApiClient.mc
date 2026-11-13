@@ -16,9 +16,14 @@ class EnturApiClient {
     public static const GRAPHQL_URL = "https://api.entur.io/journey-planner/v3/graphql";
     public static const GEOCODER_URL = "https://api.entur.io/geocoder/v1/autocomplete";
     public static const MAX_DEPARTURES = 8;
+    // Resolved line IDs are cached for a week; line IDs are very stable
+    public static const LINE_CACHE_TTL_SEC = 604800;
 
     private var _state as DepartureModel.StopBoardState;
     private var _pendingQueryName as String = "";
+    private var _pendingLineKey as String = "";
+    // GraphQL argument fragment restricting estimatedCalls to favourite lines ("" = none)
+    private var _lineWhitelistArg as String = "";
 
     public function initialize(state as DepartureModel.StopBoardState) {
         self._state = state;
@@ -54,6 +59,32 @@ class EnturApiClient {
         WatchUi.requestUpdate();
     }
 
+    public function getRouteFilterEnabled() as Boolean {
+        var val = Properties.getValue("routeFilterEnabled");
+        if (val instanceof Boolean) {
+            return val;
+        }
+        return true;
+    }
+
+    public function setRouteFilterEnabled(enabled as Boolean) as Void {
+        Properties.setValue("routeFilterEnabled", enabled);
+    }
+
+    // Configured favourite line codes, regardless of whether the filter is enabled
+    public function getConfiguredRouteFilter() as Array<String> {
+        var raw = Properties.getValue("routeFilter");
+        return DepartureModel.parseRouteFilter((raw instanceof String) ? raw : null);
+    }
+
+    // Line codes to filter by right now (empty = show all lines)
+    public function getActiveRouteFilter() as Array<String> {
+        if (!self.getRouteFilterEnabled()) {
+            return [] as Array<String>;
+        }
+        return self.getConfiguredRouteFilter();
+    }
+
     public function pinCurrentStop() as Boolean {
         if (self._state.stopId.length() == 0) {
             return false;
@@ -78,6 +109,106 @@ class EnturApiClient {
         self._state.errorMessage = "";
         WatchUi.requestUpdate();
 
+        // Favourite lines: resolve public codes (e.g. "17") into Entur line IDs
+        // (e.g. "RUT:Line:17") so the server only returns matching departures.
+        var codes = self.getActiveRouteFilter();
+        self._state.routeFilter = codes;
+        self._lineWhitelistArg = "";
+        if (codes.size() > 0) {
+            var lineKey = DepartureModel.joinCodes(codes);
+            var cached = Storage.getValue("lineids_" + lineKey);
+            if (cached instanceof Dictionary) {
+                var ts = cached["t"];
+                var ids = cached["ids"];
+                if (ts instanceof Number && ids instanceof Array &&
+                    (Time.now().value() - ts) < LINE_CACHE_TTL_SEC) {
+                    if (!self.applyLineIds(ids as Array<String>)) {
+                        return;
+                    }
+                    self.loadStop();
+                    return;
+                }
+            }
+            self.resolveLineIds(lineKey, codes);
+            return;
+        }
+
+        self.loadStop();
+    }
+
+    // Builds the whiteListed argument; returns false (and sets an error) if no lines matched
+    private function applyLineIds(ids as Array<String>) as Boolean {
+        if (ids.size() == 0) {
+            self._state.status = :error;
+            self._state.errorMessage = "Unknown line(s)";
+            self._state.departures = [] as Array<DepartureModel.DepartureItem>;
+            WatchUi.requestUpdate();
+            return false;
+        }
+        var arg = ",whiteListed:{lines:[";
+        for (var i = 0; i < ids.size(); i++) {
+            arg = arg + ((i > 0) ? "," : "") + "\"" + ids[i] + "\"";
+        }
+        self._lineWhitelistArg = arg + "]}";
+        return true;
+    }
+
+    private function resolveLineIds(lineKey as String, codes as Array<String>) as Void {
+        System.println("resolveLineIds: " + lineKey);
+        self._pendingLineKey = lineKey;
+        var list = "";
+        for (var i = 0; i < codes.size(); i++) {
+            list = list + ((i > 0) ? "," : "") + "\"" + codes[i] + "\"";
+        }
+        self.sendGraphQlRequest("{lines(publicCodes:[" + list + "]){id}}", method(:onReceiveLinesResponse));
+    }
+
+    public function onReceiveLinesResponse(
+        responseCode as Number,
+        data as Dictionary or String or Null
+    ) as Void {
+        System.println("onReceiveLinesResponse: code=" + responseCode.toString());
+        if (responseCode == 200 && data instanceof Dictionary) {
+            var ids = EnturApiClient.parseLineIds(data);
+            if (ids != null) {
+                Storage.setValue("lineids_" + self._pendingLineKey, {
+                    "t" => Time.now().value(),
+                    "ids" => ids
+                });
+                if (self.applyLineIds(ids)) {
+                    self.loadStop();
+                }
+                return;
+            }
+        }
+        self._state.status = :error;
+        self._state.errorMessage = "Line lookup err " + responseCode.toString();
+        WatchUi.requestUpdate();
+    }
+
+    public static function parseLineIds(root as Dictionary) as Array<String> or Null {
+        var dataNode = root["data"];
+        if (!(dataNode instanceof Dictionary)) {
+            return null;
+        }
+        var lines = dataNode["lines"];
+        if (!(lines instanceof Array)) {
+            return null;
+        }
+        var ids = [] as Array<String>;
+        for (var i = 0; i < lines.size(); i++) {
+            var line = lines[i];
+            if (line instanceof Dictionary) {
+                var id = line["id"];
+                if (id instanceof String && id.length() > 0) {
+                    ids.add(id);
+                }
+            }
+        }
+        return ids;
+    }
+
+    private function loadStop() as Void {
         var mode = self.getActiveStopMode();
         System.println("Active stop mode: " + mode.toString());
         if (mode == DepartureModel.MODE_GPS) {
@@ -206,23 +337,26 @@ class EnturApiClient {
     public function fetchByStopId(stopId as String) as Void {
         System.println("fetchByStopId: " + stopId);
         var gql = "{stopPlace(id:\"" + stopId + "\"){id name estimatedCalls(numberOfDepartures:" +
-            MAX_DEPARTURES.toString() +
+            MAX_DEPARTURES.toString() + self._lineWhitelistArg +
             "){realtime expectedDepartureTime destinationDisplay{frontText}serviceJourney{journeyPattern{line{publicCode transportMode}}}}}}";
 
-        self.sendGraphQlRequest(gql);
+        self.sendGraphQlRequest(gql, method(:onReceiveGraphQlResponse));
     }
 
     public function fetchByCoordinates(lat as Double or Float, lon as Double or Float) as Void {
         var gql = "{nearest(latitude:" + lat.format("%.5f") +
             ",longitude:" + lon.format("%.5f") +
             ",maximumResults:1,maximumDistance:1000,filterByPlaceTypes:[stopPlace]){edges{node{distance place{... on StopPlace{id name estimatedCalls(numberOfDepartures:" +
-            MAX_DEPARTURES.toString() +
+            MAX_DEPARTURES.toString() + self._lineWhitelistArg +
             "){realtime expectedDepartureTime destinationDisplay{frontText}serviceJourney{journeyPattern{line{publicCode transportMode}}}}}}}}}}";
 
-        self.sendGraphQlRequest(gql);
+        self.sendGraphQlRequest(gql, method(:onReceiveGraphQlResponse));
     }
 
-    private function sendGraphQlRequest(queryStr as String) as Void {
+    private function sendGraphQlRequest(
+        queryStr as String,
+        callback as Method(responseCode as Number, data as Dictionary or String or Null) as Void
+    ) as Void {
         var payload = {
             "query" => queryStr
         };
@@ -238,7 +372,7 @@ class EnturApiClient {
             GRAPHQL_URL,
             payload,
             options,
-            method(:onReceiveGraphQlResponse)
+            callback
         );
     }
 
@@ -253,7 +387,8 @@ class EnturApiClient {
                 data,
                 self._state,
                 nowEpoch,
-                self.getSortByModeFirst()
+                self.getSortByModeFirst(),
+                self._state.routeFilter
             );
             if (!parsed) {
                 self._state.status = :error;
@@ -270,7 +405,8 @@ class EnturApiClient {
         root as Dictionary,
         state as DepartureModel.StopBoardState,
         nowEpoch as Number,
-        sortByModeFirst as Boolean
+        sortByModeFirst as Boolean,
+        routeFilter as Array<String>
     ) as Boolean {
         var dataNode = root["data"];
         if (!(dataNode instanceof Dictionary)) {
@@ -318,7 +454,9 @@ class EnturApiClient {
                 var call = calls[i];
                 if (call instanceof Dictionary) {
                     var item = EnturApiClient.parseEstimatedCall(call, nowEpoch);
-                    if (item != null) {
+                    // Server-side whitelist does the heavy lifting; this guards against
+                    // other lines sharing an ID namespace or stale cached line IDs.
+                    if (item != null && DepartureModel.matchesRouteFilter(item.lineCode, routeFilter)) {
                         list.add(item);
                     }
                 }

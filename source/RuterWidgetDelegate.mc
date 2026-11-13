@@ -65,6 +65,13 @@ class RuterWidgetDelegate extends WatchUi.BehaviorDelegate {
             null
         ));
 
+        menu.addItem(new WatchUi.MenuItem(
+            "Line Filter",
+            self.formatRouteFilterSubLabel(self._client),
+            :routeFilter,
+            null
+        ));
+
         var sortSub = self._client.getSortByModeFirst() ? "Mode + Time" : "Time Only";
         menu.addItem(new WatchUi.MenuItem(
             "Sort Order",
@@ -99,6 +106,17 @@ class RuterWidgetDelegate extends WatchUi.BehaviorDelegate {
         }
         return "Favorite 1";
     }
+
+    public static function formatRouteFilterSubLabel(client as EnturApiClient) as String {
+        var codes = client.getConfiguredRouteFilter();
+        if (codes.size() == 0) {
+            return "Set lines in phone app";
+        }
+        if (client.getRouteFilterEnabled()) {
+            return "On: " + DepartureModel.joinCodes(codes);
+        }
+        return "Off (all lines)";
+    }
 }
 
 class RuterSettingsMenuDelegate extends WatchUi.Menu2InputDelegate {
@@ -125,6 +143,12 @@ class RuterSettingsMenuDelegate extends WatchUi.Menu2InputDelegate {
             } else {
                 item.setSubLabel("Wait for stop load");
             }
+        } else if (id == :routeFilter) {
+            if (self._client.getConfiguredRouteFilter().size() > 0) {
+                self._client.setRouteFilterEnabled(!self._client.getRouteFilterEnabled());
+                self._sourceChanged = true;
+            }
+            item.setSubLabel(RuterWidgetDelegate.formatRouteFilterSubLabel(self._client));
         } else if (id == :sortOrder) {
             var nextSort = !self._client.getSortByModeFirst();
             self._client.setSortByModeFirst(nextSort);
