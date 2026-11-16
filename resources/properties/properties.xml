@@ -8,6 +8,16 @@
         <property id="stopQuery2" type="string">Majorstuen</property>
         <property id="stopQuery3" type="string">Nationaltheatret</property>
 
+        <!-- Optional per-favourite filters. Empty = no filter (same behaviour as before) -->
+        <!-- Transport modes: comma-separated Entur modes (e.g. "bus, tram"). Empty = all modes -->
+        <property id="stopModes1" type="string"></property>
+        <property id="stopModes2" type="string"></property>
+        <property id="stopModes3" type="string"></property>
+        <!-- Lines: comma-separated public line codes (e.g. "21"). Replaces the global favourite lines for that stop -->
+        <property id="stopLines1" type="string"></property>
+        <property id="stopLines2" type="string"></property>
+        <property id="stopLines3" type="string"></property>
+
         <!-- Sort by transport mode first, then departure time -->
         <property id="sortByModeFirst" type="boolean">true</property>
 
@@ -34,10 +44,28 @@
         <setting propertyKey="@Properties.stopQuery1" title="@Strings.StopQuery1Title">
             <settingConfig type="alphaNumeric" />
         </setting>
+        <setting propertyKey="@Properties.stopModes1" title="@Strings.StopModes1Title">
+            <settingConfig type="alphaNumeric" />
+        </setting>
+        <setting propertyKey="@Properties.stopLines1" title="@Strings.StopLines1Title">
+            <settingConfig type="alphaNumeric" />
+        </setting>
         <setting propertyKey="@Properties.stopQuery2" title="@Strings.StopQuery2Title">
             <settingConfig type="alphaNumeric" />
         </setting>
+        <setting propertyKey="@Properties.stopModes2" title="@Strings.StopModes2Title">
+            <settingConfig type="alphaNumeric" />
+        </setting>
+        <setting propertyKey="@Properties.stopLines2" title="@Strings.StopLines2Title">
+            <settingConfig type="alphaNumeric" />
+        </setting>
         <setting propertyKey="@Properties.stopQuery3" title="@Strings.StopQuery3Title">
+            <settingConfig type="alphaNumeric" />
+        </setting>
+        <setting propertyKey="@Properties.stopModes3" title="@Strings.StopModes3Title">
+            <settingConfig type="alphaNumeric" />
+        </setting>
+        <setting propertyKey="@Properties.stopLines3" title="@Strings.StopLines3Title">
             <settingConfig type="alphaNumeric" />
         </setting>
 

@@ -38,6 +38,24 @@ module DepartureModel {
         return codes;
     }
 
+    // Entur TransportMode enum names accepted in a favourite's mode filter
+    const TRANSPORT_MODES = ",air,bus,cableway,water,funicular,lift,rail,metro,taxi,tram,trolleybus,monorail,coach,carpool,";
+
+    // Parses a user-entered transport mode filter such as "bus, Tram" into valid
+    // Entur TransportMode names ["bus", "tram"]. Unknown words are ignored so a
+    // typo can never produce an invalid query.
+    function parseTransportModes(raw as String or Null) as Array<String> {
+        var words = parseRouteFilter(raw);
+        var modes = [] as Array<String>;
+        for (var i = 0; i < words.size(); i++) {
+            var word = words[i].toLower();
+            if (TRANSPORT_MODES.find("," + word + ",") != null) {
+                modes.add(word);
+            }
+        }
+        return modes;
+    }
+
     function trimSpaces(s as String) as String {
         var chars = s.toCharArray();
         var start = 0;
@@ -156,6 +174,8 @@ module DepartureModel {
         public var lastUpdatedEpoch as Number = 0;
         // Line public codes the current board is filtered to (empty = all lines)
         public var routeFilter as Array<String> = [] as Array<String>;
+        // Transport modes the current board is filtered to (empty = all modes)
+        public var modeFilter as Array<String> = [] as Array<String>;
 
         public function initialize() {
         }

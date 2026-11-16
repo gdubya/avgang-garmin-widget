@@ -178,6 +178,34 @@ module EnturParserTest {
     }
 
     (:test)
+    function testParseTransportModes(logger as Test.Logger) as Boolean {
+        var modes = DepartureModel.parseTransportModes(" Bus, tram;BUS , trikk,\"metro\" ");
+        Test.assertEqual(3, modes.size());
+        Test.assertEqual("bus", modes[0]);
+        Test.assertEqual("tram", modes[1]);
+        Test.assertEqual("metro", modes[2]);
+        Test.assertEqual("bus,tram,metro", DepartureModel.joinCodes(modes));
+
+        // Unknown words never reach the query
+        Test.assertEqual(0, DepartureModel.parseTransportModes("t-bane, buss, snowAndIce, bus){id}").size());
+        Test.assertEqual(0, DepartureModel.parseTransportModes("").size());
+        Test.assertEqual(0, DepartureModel.parseTransportModes(null).size());
+        return true;
+    }
+
+    (:test)
+    function testFormatFilterTag(logger as Test.Logger) as Boolean {
+        var none = [] as Array<String>;
+        var modes = ["bus", "tram"] as Array<String>;
+        var lines = ["21"] as Array<String>;
+        Test.assertEqual("", RuterWidgetView.formatFilterTag(none, none));
+        Test.assertEqual("Lines 21", RuterWidgetView.formatFilterTag(none, lines));
+        Test.assertEqual("Only bus,tram", RuterWidgetView.formatFilterTag(modes, none));
+        Test.assertEqual("bus,tram 21", RuterWidgetView.formatFilterTag(modes, lines));
+        return true;
+    }
+
+    (:test)
     function testMatchesRouteFilter(logger as Test.Logger) as Boolean {
         var empty = [] as Array<String>;
         Test.assert(DepartureModel.matchesRouteFilter("31", empty));

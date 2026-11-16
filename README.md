@@ -34,6 +34,7 @@ A native Garmin Connect IQ widget displaying real-time public transport countdow
 
 4. **Favorite Lines Filter**:
    - Configure one or more favorite lines (e.g. `17, 31`) to only show those routes at whichever stop is active.
+   - Optionally give each of **Favorites 1–3** its own transport modes (e.g. `bus`) and lines (e.g. `21`).
 
 ---
 
@@ -90,6 +91,20 @@ Only interested in certain routes? Enter them in the **Garmin Connect Mobile app
 > **Note (GPS Nearest Stop):** the filter does not change *which* stop is selected. GPS mode still picks the physically nearest stop and then filters its departures, so if none of your favorite lines serve that stop you'll see `No departures on your lines`. Switch the filter off from the watch menu, or use a Favorite/Pinned stop on your line.
 
 > **How it works:** line numbers are resolved once via Entur's `lines(publicCodes:)` query into line IDs (e.g. `RUT:Line:17`), cached on the watch for 7 days, and passed as a server-side `whiteListed` filter on departures.
+
+### 5. Per-Favorite Filters (optional)
+Each of **Favorites 1–3** can carry its own filters, set in the **Garmin Connect Mobile app** under *App Settings*, right below the stop itself. Both fields are empty by default, which means no filter.
+
+| Setting | Example | Effect |
+| :--- | :--- | :--- |
+| **Favorite Stop N: Transport Modes** | `bus` or `bus, tram` | Only those modes are shown at that favorite, e.g. buses only at a combined bus/metro hub. |
+| **Favorite Stop N: Lines** | `21` | Only those lines are shown at that favorite. |
+
+* **Modes** use Entur's names: `bus`, `tram`, `metro`, `rail`, `water`, `coach`, `air` (plus `cableway`, `funicular`, `lift`, `taxi`, `trolleybus`, `monorail`, `carpool`). Case does not matter, and unknown words are ignored.
+* A favorite's own **Lines** *replace* the global **Favorite Lines** for that stop and apply whether or not the **Line Filter** toggle is on. A favorite without its own lines follows the global filter as before.
+* A favorite's **Modes** always apply to that favorite, on top of whichever line list is in effect.
+* **GPS Nearest Stop** and **Pinned Stop** never use per-favorite filters, only the global **Favorite Lines**. Pinning a stop while on a filtered favorite pins the stop, not the filter.
+* When a filter is active the footer shows it: `Only bus`, `Lines 21`, or `bus 21` when both are set.
 
 ---
 

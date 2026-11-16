@@ -90,7 +90,12 @@ class RuterGlanceView extends WatchUi.GlanceView {
                 summaryText = state.errorMessage;
                 summaryColor = Graphics.COLOR_ORANGE;
             } else if (state.status == :ready) {
-                summaryText = (state.routeFilter.size() > 0) ? "None on your lines" : "No departures";
+                summaryText = "No departures";
+                if (state.routeFilter.size() > 0) {
+                    summaryText = "None on your lines";
+                } else if (state.modeFilter.size() > 0) {
+                    summaryText = "No " + DepartureModel.joinCodes(state.modeFilter) + " departures";
+                }
                 summaryColor = Graphics.COLOR_LT_GRAY;
             }
 
