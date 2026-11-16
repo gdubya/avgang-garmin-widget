@@ -111,9 +111,9 @@ class RuterWidgetView extends WatchUi.View {
 
         var total = state.departures.size();
         var sortTag = self._client.getSortByModeFirst() ? "Mode+Time" : "Time Only";
-        var filterActive = state.routeFilter.size() > 0;
-        if (filterActive) {
-            sortTag = "Lines " + DepartureModel.joinCodes(state.routeFilter);
+        var filterTag = formatFilterTag(state.modeFilter, state.routeFilter);
+        if (filterTag.length() > 0) {
+            sortTag = filterTag;
         }
         var footer = sortTag + " • Hold UP: Menu";
         if (total > VISIBLE_ROWS) {
@@ -136,7 +136,12 @@ class RuterWidgetView extends WatchUi.View {
         var bodyBottom = footerDivY - vGap;
         var bodyHeight = bodyBottom - bodyTop;
         if (total == 0) {
-            var msg = filterActive ? "No departures on your lines" : "No departures";
+            var msg = "No departures";
+            if (state.routeFilter.size() > 0) {
+                msg = "No departures on your lines";
+            } else if (state.modeFilter.size() > 0) {
+                msg = "No " + DepartureModel.joinCodes(state.modeFilter) + " departures";
+            }
             var msgColor = Graphics.COLOR_LT_GRAY;
             if (state.status == :loading) {
                 msg = "Fetching Entur...";
@@ -235,6 +240,18 @@ class RuterWidgetView extends WatchUi.View {
             return 0;
         }
         return Math.sqrt((effRadius * effRadius) - (dy * dy)).toNumber();
+    }
+
+    // Footer hint for the filters behind the current board: "Lines 17,31",
+    // "Only bus,tram", "bus 21" (both, kept short for the footer), or "" when nothing is filtered
+    public static function formatFilterTag(modes as Array<String>, codes as Array<String>) as String {
+        if (modes.size() == 0) {
+            return (codes.size() > 0) ? ("Lines " + DepartureModel.joinCodes(codes)) : "";
+        }
+        if (codes.size() == 0) {
+            return "Only " + DepartureModel.joinCodes(modes);
+        }
+        return DepartureModel.joinCodes(modes) + " " + DepartureModel.joinCodes(codes);
     }
 
     private function fitTextToWidth(

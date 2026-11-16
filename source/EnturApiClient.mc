@@ -24,6 +24,8 @@ class EnturApiClient {
     private var _pendingLineKey as String = "";
     // GraphQL argument fragment restricting estimatedCalls to favourite lines ("" = none)
     private var _lineWhitelistArg as String = "";
+    // GraphQL argument fragment restricting estimatedCalls to a favourite's transport modes ("" = none)
+    private var _modeWhitelistArg as String = "";
 
     public function initialize(state as DepartureModel.StopBoardState) {
         self._state = state;
@@ -85,6 +87,40 @@ class EnturApiClient {
         return self.getConfiguredRouteFilter();
     }
 
+    // Favourite (1-3) behind the active stop source, or 0 for GPS Nearest and Pinned
+    public function getActiveFavorite() as Number {
+        var mode = self.getActiveStopMode();
+        if (mode == DepartureModel.MODE_GPS) {
+            return 0;
+        }
+        if (mode == DepartureModel.MODE_PINNED) {
+            var pinnedId = Storage.getValue("pinnedStopId");
+            if (pinnedId instanceof String && pinnedId.length() > 0) {
+                return 0;
+            }
+            // Falls back to Favorite 1 if nothing is pinned yet
+            return 1;
+        }
+        if (mode == DepartureModel.MODE_FAV_2) {
+            return 2;
+        } else if (mode == DepartureModel.MODE_FAV_3) {
+            return 3;
+        }
+        return 1;
+    }
+
+    // A favourite's own line codes (empty = use the global Favorite Lines filter)
+    public function getFavoriteLines(fav as Number) as Array<String> {
+        var raw = Properties.getValue("stopLines" + fav.toString());
+        return DepartureModel.parseRouteFilter((raw instanceof String) ? raw : null);
+    }
+
+    // A favourite's transport modes (empty = all modes)
+    public function getFavoriteModes(fav as Number) as Array<String> {
+        var raw = Properties.getValue("stopModes" + fav.toString());
+        return DepartureModel.parseTransportModes((raw instanceof String) ? raw : null);
+    }
+
     public function pinCurrentStop() as Boolean {
         if (self._state.stopId.length() == 0) {
             return false;
@@ -112,8 +148,24 @@ class EnturApiClient {
         // Favourite lines: resolve public codes (e.g. "17") into Entur line IDs
         // (e.g. "RUT:Line:17") so the server only returns matching departures.
         var codes = self.getActiveRouteFilter();
+        // Per-favourite filters: a favourite's own lines replace the global list for that
+        // stop (whatever the global toggle says), and its transport modes always apply.
+        // GPS Nearest and Pinned only ever get the global filter.
+        var modes = [] as Array<String>;
+        var fav = self.getActiveFavorite();
+        if (fav > 0) {
+            var favCodes = self.getFavoriteLines(fav);
+            if (favCodes.size() > 0) {
+                codes = favCodes;
+            }
+            modes = self.getFavoriteModes(fav);
+        }
         self._state.routeFilter = codes;
+        self._state.modeFilter = modes;
         self._lineWhitelistArg = "";
+        self._modeWhitelistArg = (modes.size() > 0)
+            ? (",whiteListedModes:[" + DepartureModel.joinCodes(modes) + "]")
+            : "";
         if (codes.size() > 0) {
             var lineKey = DepartureModel.joinCodes(codes);
             var cached = Storage.getValue("lineids_" + lineKey);
@@ -337,7 +389,7 @@ class EnturApiClient {
     public function fetchByStopId(stopId as String) as Void {
         System.println("fetchByStopId: " + stopId);
         var gql = "{stopPlace(id:\"" + stopId + "\"){id name estimatedCalls(numberOfDepartures:" +
-            MAX_DEPARTURES.toString() + self._lineWhitelistArg +
+            MAX_DEPARTURES.toString() + self._lineWhitelistArg + self._modeWhitelistArg +
             "){realtime expectedDepartureTime destinationDisplay{frontText}serviceJourney{journeyPattern{line{publicCode transportMode}}}}}}";
 
         self.sendGraphQlRequest(gql, method(:onReceiveGraphQlResponse));

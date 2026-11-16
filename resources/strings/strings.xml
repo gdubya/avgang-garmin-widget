@@ -10,6 +10,12 @@
     <string id="StopQuery1Title">Favorite Stop 1 (Name or NSR:StopPlace:ID)</string>
     <string id="StopQuery2Title">Favorite Stop 2 (Name or NSR:StopPlace:ID)</string>
     <string id="StopQuery3Title">Favorite Stop 3 (Name or NSR:StopPlace:ID)</string>
+    <string id="StopModes1Title">Favorite Stop 1: Transport Modes (e.g. bus, tram). Empty = all modes</string>
+    <string id="StopModes2Title">Favorite Stop 2: Transport Modes (e.g. bus, tram). Empty = all modes</string>
+    <string id="StopModes3Title">Favorite Stop 3: Transport Modes (e.g. bus, tram). Empty = all modes</string>
+    <string id="StopLines1Title">Favorite Stop 1: Lines (e.g. 21). Empty = use Favorite Lines</string>
+    <string id="StopLines2Title">Favorite Stop 2: Lines (e.g. 21). Empty = use Favorite Lines</string>
+    <string id="StopLines3Title">Favorite Stop 3: Lines (e.g. 21). Empty = use Favorite Lines</string>
     <string id="SortByModeTitle">Sort by Transport Mode First, Then Time</string>
     <string id="RouteFilterTitle">Favorite Lines (comma-separated, e.g. 17, 31). Empty = all lines</string>
     <string id="RouteFilterEnabledTitle">Only Show Favorite Lines</string>
