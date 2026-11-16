@@ -2,3 +2,10 @@ project.manifest = manifest.xml
 
 base.sourcePath = source
 base.resourcePath = resources
+
+# Connect IQ 1.x watches (64 kB widgets, no glance, no Menu2, no
+# Application.Storage) get their own sources. Only DepartureModel.mc is shared;
+# settings and strings come from the same resources as every other device.
+legacySourcePath = source-legacy;source/DepartureModel.mc
+fr230.sourcePath = $(legacySourcePath)
+fr235.sourcePath = $(legacySourcePath)

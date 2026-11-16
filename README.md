@@ -5,6 +5,8 @@
 A native Garmin Connect IQ widget displaying real-time public transport countdowns across Norway directly from the **Entur JourneyPlanner v3 GraphQL API** and **Entur Geocoder API**.
 
 > **Device Compatibility Note:** This widget was **developed primarily and optimized for the Garmin fēnix 6S** (`fenix6s` / `fenix6spro`). It is also built and packaged for other circular Garmin watches with identical or similar screen layouts (fēnix 6/7/8 series, fēnix E, Epix 2, Forerunner 255/265/955/965, and Enduro / Enduro 3), with UI elements and font sizing tuned specifically for the fēnix 6S display.
+>
+> **Older watches:** the Forerunner 230 and 235 (Connect IQ 1.x) get a smaller build of the same widget with its own controls. See [Older Watches (Connect IQ 1.x)](#older-watches-connect-iq-1x).
 
 ---
 
@@ -108,6 +110,20 @@ Each of **Favorites 1–3** can carry its own filters, set in the **Garmin Conne
 
 ---
 
+## Older Watches (Connect IQ 1.x)
+
+The **Forerunner 230 and 235** (64 kB per widget, no glances) run a smaller build from `source-legacy/`, with the same settings in the **Garmin Connect Mobile app**. On these watches **UP / DOWN** on a widget's first page belong to the watch itself, so the controls differ:
+
+| Where | Button | Action |
+| :--- | :--- | :--- |
+| Widget page (next 3 departures) | **START** | Open the departure list |
+| Departure list | **UP / DOWN** | Scroll |
+| Departure list | **START** or **Hold UP** | Open the menu: refresh, stop source, line filter, pin, sort |
+
+A favorite's own filters are shown in the title (`Helsfyr (bus)`), the global **Favorite Lines** in the footer. Countdowns use Entur's clock rather than the watch's, so a watch with a wrong date or time zone still shows the right minutes.
+
+---
+
 ## Quick Start & Sideloading
 
 To install the widget directly onto your physical Garmin watch:
@@ -138,7 +154,11 @@ To install the widget directly onto your physical Garmin watch:
    # Note: on Windows monkeydo requires /t (forward slash)
    monkeydo bin/AvgangTest.prg fenix6s /t
    ```
-6. Package for Connect IQ Store:
+6. Unit tests for the older-watch parser (`Toybox.Test` needs a modern profile):
+   ```bash
+   monkeyc -f legacy-test.jungle -d fenix6s -o bin/LegacyTest.prg -y developer_key.der -t
+   ```
+7. Package for Connect IQ Store:
    ```bash
    monkeyc -e -f monkey.jungle -o bin/Avgang.iq -y developer_key.der -r -w
    ```
