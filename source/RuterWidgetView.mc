@@ -25,7 +25,7 @@ class RuterWidgetView extends WatchUi.View {
         if (state.status == :idle || (nowEpoch - state.lastUpdatedEpoch) > 60) {
             self._client.refreshDepartures();
         } else {
-            state.recalculateCountdowns(nowEpoch);
+            state.recalculateCountdowns(self._client.serverNow());
         }
 
         if (self._timer == null) {
@@ -43,8 +43,7 @@ class RuterWidgetView extends WatchUi.View {
 
     public function onTimerTick() as Void {
         self._tickCount = self._tickCount + 1;
-        var nowEpoch = Time.now().value();
-        self._client.getState().recalculateCountdowns(nowEpoch);
+        self._client.getState().recalculateCountdowns(self._client.serverNow());
 
         if (self._tickCount >= 4) {
             self._tickCount = 0;
@@ -357,7 +356,7 @@ class RuterWidgetView extends WatchUi.View {
         var countdownText = item.formatCountdown();
         var countdownW = dc.getTextWidthInPixels(countdownText, Graphics.FONT_TINY);
         var textY = rowY + ((rowHeight - hTiny) / 2);
-        var timeColor = (item.minutesUntil <= 2) ? 0x00FF00 : Graphics.COLOR_WHITE;
+        var timeColor = (item.minutesUntil >= 0 && item.minutesUntil <= 2) ? 0x00FF00 : Graphics.COLOR_WHITE;
         dc.setColor(timeColor, Graphics.COLOR_TRANSPARENT);
         dc.drawText(
             rowRightX,

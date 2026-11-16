@@ -96,13 +96,15 @@ module DepartureModel {
         public var expectedEpoch as Number;
         public var minutesUntil as Number;
         public var isRealtime as Boolean;
+        // Departure time as Entur sent it, e.g. "16:35"
+        public var wallTime as String = "";
 
         public function initialize(
             transportMode as String,
             lineCode as String,
             destination as String,
             expectedEpoch as Number,
-            nowEpoch as Number,
+            nowEpoch as Number or Null,
             isRealtime as Boolean
         ) {
             self.transportMode = transportMode.toLower();
@@ -115,7 +117,11 @@ module DepartureModel {
             self.minutesUntil = DepartureItem.computeMinutesUntil(expectedEpoch, nowEpoch);
         }
 
-        public static function computeMinutesUntil(expectedEpoch as Number, nowEpoch as Number) as Number {
+        // nowEpoch is Entur's clock; -1 when it is unknown (wallTime is shown instead)
+        public static function computeMinutesUntil(expectedEpoch as Number, nowEpoch as Number or Null) as Number {
+            if (nowEpoch == null) {
+                return -1;
+            }
             var diffSec = expectedEpoch - nowEpoch;
             if (diffSec <= 30) {
                 return 0;
@@ -155,6 +161,9 @@ module DepartureModel {
         }
 
         public function formatCountdown() as String {
+            if (self.minutesUntil < 0) {
+                return self.wallTime;
+            }
             if (self.minutesUntil <= 0) {
                 return "Now";
             }
@@ -180,12 +189,12 @@ module DepartureModel {
         public function initialize() {
         }
 
-        public function recalculateCountdowns(nowEpoch as Number) as Void {
+        public function recalculateCountdowns(nowEpoch as Number or Null) as Void {
             var active = [] as Array<DepartureItem>;
             for (var i = 0; i < self.departures.size(); i++) {
                 var item = self.departures[i];
                 // Keep departures that haven't left more than 45 seconds ago
-                if (item.expectedEpoch >= (nowEpoch - 45)) {
+                if (nowEpoch == null || item.expectedEpoch >= (nowEpoch - 45)) {
                     item.minutesUntil = DepartureItem.computeMinutesUntil(item.expectedEpoch, nowEpoch);
                     active.add(item);
                 }

@@ -6,7 +6,6 @@ import Toybox.Lang;
 import Toybox.Position;
 import Toybox.System;
 import Toybox.Time;
-import Toybox.Time.Gregorian;
 import Toybox.WatchUi;
 import DepartureModel;
 
@@ -18,6 +17,8 @@ class EnturApiClient {
     public static const MAX_DEPARTURES = 8;
     // Resolved line IDs are cached for a week; line IDs are very stable
     public static const LINE_CACHE_TTL_SEC = 604800;
+    // Extra root field returning Entur's current time (same from and to, so no routing)
+    public static const CLOCK_FIELD = "trip(from:{coordinates:{latitude:59.91,longitude:10.75}},to:{coordinates:{latitude:59.91,longitude:10.75}},numTripPatterns:1){dateTime}";
 
     private var _state as DepartureModel.StopBoardState;
     private var _pendingQueryName as String = "";
@@ -26,6 +27,9 @@ class EnturApiClient {
     private var _lineWhitelistArg as String = "";
     // GraphQL argument fragment restricting estimatedCalls to a favourite's transport modes ("" = none)
     private var _modeWhitelistArg as String = "";
+    // Entur's clock minus the watch's clock in seconds, and the watch time it was read
+    private var _clockOffset as Number or Null = null;
+    private var _clockOffsetAt as Number = 0;
 
     public function initialize(state as DepartureModel.StopBoardState) {
         self._state = state;
@@ -33,6 +37,18 @@ class EnturApiClient {
 
     public function getState() as DepartureModel.StopBoardState {
         return self._state;
+    }
+
+    // Entur's "now" as UTC epoch seconds, or null until Entur has told us
+    public function serverNow() as Number or Null {
+        var offset = self._clockOffset;
+        return (offset != null) ? (Time.now().value() + offset) : null;
+    }
+
+    // Asks for Entur's clock on the first request and when the offset is over 10 minutes old
+    private function clockField() as String {
+        var age = Time.now().value() - self._clockOffsetAt;
+        return (self._clockOffset == null || age > 600 || age < 0) ? CLOCK_FIELD : "";
     }
 
     public function getActiveStopMode() as Number {
@@ -388,7 +404,7 @@ class EnturApiClient {
 
     public function fetchByStopId(stopId as String) as Void {
         System.println("fetchByStopId: " + stopId);
-        var gql = "{stopPlace(id:\"" + stopId + "\"){id name estimatedCalls(numberOfDepartures:" +
+        var gql = "{" + self.clockField() + "stopPlace(id:\"" + stopId + "\"){id name estimatedCalls(numberOfDepartures:" +
             MAX_DEPARTURES.toString() + self._lineWhitelistArg + self._modeWhitelistArg +
             "){realtime expectedDepartureTime destinationDisplay{frontText}serviceJourney{journeyPattern{line{publicCode transportMode}}}}}}";
 
@@ -396,7 +412,7 @@ class EnturApiClient {
     }
 
     public function fetchByCoordinates(lat as Double or Float, lon as Double or Float) as Void {
-        var gql = "{nearest(latitude:" + lat.format("%.5f") +
+        var gql = "{" + self.clockField() + "nearest(latitude:" + lat.format("%.5f") +
             ",longitude:" + lon.format("%.5f") +
             ",maximumResults:1,maximumDistance:1000,filterByPlaceTypes:[stopPlace]){edges{node{distance place{... on StopPlace{id name estimatedCalls(numberOfDepartures:" +
             MAX_DEPARTURES.toString() + self._lineWhitelistArg +
@@ -434,15 +450,22 @@ class EnturApiClient {
     ) as Void {
         System.println("onReceiveGraphQlResponse: code=" + responseCode.toString());
         if (responseCode == 200 && data instanceof Dictionary) {
-            var nowEpoch = Time.now().value();
+            var watchEpoch = Time.now().value();
+            var serverEpoch = EnturApiClient.parseServerEpoch(data);
+            if (serverEpoch != null) {
+                self._clockOffset = serverEpoch - watchEpoch;
+                self._clockOffsetAt = watchEpoch;
+            }
             var parsed = EnturApiClient.parseGraphQlPayload(
                 data,
                 self._state,
-                nowEpoch,
+                self.serverNow(),
                 self.getSortByModeFirst(),
                 self._state.routeFilter
             );
-            if (!parsed) {
+            if (parsed) {
+                self._state.lastUpdatedEpoch = watchEpoch;
+            } else {
                 self._state.status = :error;
                 self._state.errorMessage = "Empty stop data";
             }
@@ -453,10 +476,18 @@ class EnturApiClient {
         WatchUi.requestUpdate();
     }
 
+    // Entur's clock from the trip field of a reply, or null if it is absent
+    public static function parseServerEpoch(root as Dictionary) as Number or Null {
+        var dataNode = root["data"];
+        var trip = (dataNode instanceof Dictionary) ? dataNode["trip"] : null;
+        var dateTime = (trip instanceof Dictionary) ? trip["dateTime"] : null;
+        return (dateTime instanceof String) ? EnturApiClient.parseIso8601ToEpoch(dateTime) : null;
+    }
+
     public static function parseGraphQlPayload(
         root as Dictionary,
         state as DepartureModel.StopBoardState,
-        nowEpoch as Number,
+        nowEpoch as Number or Null,
         sortByModeFirst as Boolean,
         routeFilter as Array<String>
     ) as Boolean {
@@ -518,14 +549,13 @@ class EnturApiClient {
         state.departures = list;
         state.scrollOffset = 0;
         state.sortDepartures(sortByModeFirst);
-        state.lastUpdatedEpoch = nowEpoch;
         state.status = :ready;
         return true;
     }
 
     public static function parseEstimatedCall(
         call as Dictionary,
-        nowEpoch as Number
+        nowEpoch as Number or Null
     ) as DepartureModel.DepartureItem or Null {
         var isoTime = call["expectedDepartureTime"];
         if (!(isoTime instanceof String)) {
@@ -574,7 +604,7 @@ class EnturApiClient {
             }
         }
 
-        return new DepartureModel.DepartureItem(
+        var item = new DepartureModel.DepartureItem(
             transportMode,
             lineCode,
             destText,
@@ -582,6 +612,8 @@ class EnturApiClient {
             nowEpoch,
             isRealtime
         );
+        item.wallTime = isoTime.substring(11, 16) as String;
+        return item;
     }
 
     // Parses ISO-8601 string e.g. "2026-11-01T16:35:00+01:00" or "2026-11-01T15:35:00Z" into UTC epoch seconds
@@ -601,16 +633,8 @@ class EnturApiClient {
             return null;
         }
 
-        var moment = Gregorian.moment({
-            :year => year,
-            :month => month,
-            :day => day,
-            :hour => hour,
-            :minute => minute,
-            :second => second
-        });
-
-        var utcSeconds = moment.value();
+        // Integer arithmetic, so the watch's own clock and time zone play no part
+        var utcSeconds = (EnturApiClient.daysFromCivil(year, month, day) * 86400) + (hour * 3600) + (minute * 60) + second;
 
         // Parse timezone offset if present after index 19 (e.g. "+01:00", "+02:00", "-05:00")
         if (isoStr.length() >= 25) {
@@ -628,5 +652,15 @@ class EnturApiClient {
         }
 
         return utcSeconds;
+    }
+
+    // Days since 1970-01-01 (Howard Hinnant's days_from_civil)
+    public static function daysFromCivil(year as Number, month as Number, day as Number) as Number {
+        var y = (month <= 2) ? (year - 1) : year;
+        var era = y / 400;
+        var yoe = y - (era * 400);
+        var doy = (((153 * (month + ((month > 2) ? -3 : 9))) + 2) / 5) + day - 1;
+        var doe = (yoe * 365) + (yoe / 4) - (yoe / 100) + doy;
+        return (era * 146097) + doe - 719468;
     }
 }
