@@ -21,6 +21,9 @@
         <!-- Sort by transport mode first, then departure time -->
         <property id="sortByModeFirst" type="boolean">true</property>
 
+        <!-- Glance: show the next departure for each of the first two directions (line + destination) -->
+        <property id="glanceShowDirections" type="boolean">false</property>
+
         <!-- Favourite lines: comma-separated public line codes (e.g. "17, 31"). Empty = show all lines -->
         <property id="routeFilter" type="string"></property>
         <!-- Apply the favourite line filter (can also be toggled on the watch) -->
@@ -77,6 +80,10 @@
         </setting>
 
         <setting propertyKey="@Properties.sortByModeFirst" title="@Strings.SortByModeTitle">
+            <settingConfig type="boolean" />
+        </setting>
+
+        <setting propertyKey="@Properties.glanceShowDirections" title="@Strings.GlanceShowDirectionsTitle">
             <settingConfig type="boolean" />
         </setting>
 

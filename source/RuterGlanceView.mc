@@ -1,3 +1,4 @@
+import Toybox.Application.Properties;
 import Toybox.Graphics;
 import Toybox.Lang;
 import Toybox.Time;
@@ -17,9 +18,9 @@ class RuterGlanceView extends WatchUi.GlanceView {
     public function onShow() as Void {
         var state = self._client.getState();
         var nowEpoch = Time.now().value();
-        if (state.status == :idle || (nowEpoch - state.lastUpdatedEpoch) > 60 || state.departures.size() == 0) {
+        if (state.status == :idle || (nowEpoch - state.lastUpdatedEpoch) > 30 || state.departures.size() == 0) {
             if (state.status != :loading) {
-                self._client.refreshDepartures();
+                self._client.refreshGlanceDepartures();
             }
         } else {
             state.recalculateCountdowns(nowEpoch);
@@ -46,9 +47,26 @@ class RuterGlanceView extends WatchUi.GlanceView {
         dc.setColor(accentColor, Graphics.COLOR_TRANSPARENT);
         dc.fillRectangle(0, 6, 4, height - 12);
 
+        // One row (the next departure), or one per direction when the setting is on
+        var rows = state.departures.slice(0, 1);
+        var rowHeight = dc.getFontHeight(Graphics.FONT_TINY);
+        var rowY = height / 2;
+        var showTitle = true;
+        if (Properties.getValue("glanceShowDirections") == true) {
+            rows = DepartureModel.nextPerDirection(state.departures);
+            if (rows.size() > 1) {
+                rowY = height - 2 * rowHeight;
+                // Short glance: drop the stop name and centre the two rows
+                if (rowY < 4 + dc.getFontHeight(Graphics.FONT_XTINY)) {
+                    showTitle = false;
+                    rowY = rowY / 2;
+                }
+            }
+        }
+
         // Top line: Stop name
         dc.setColor(Graphics.COLOR_LT_GRAY, Graphics.COLOR_TRANSPARENT);
-        var title = state.stopName;
+        var title = showTitle ? state.stopName : "";
         var maxTitleWidth = width - 14;
         if (dc.getTextWidthInPixels(title, Graphics.FONT_XTINY) > maxTitleWidth) {
             while (title.length() > 0 && dc.getTextWidthInPixels(title + ".", Graphics.FONT_XTINY) > maxTitleWidth) {
@@ -59,15 +77,16 @@ class RuterGlanceView extends WatchUi.GlanceView {
         dc.drawText(10, 4, Graphics.FONT_XTINY, title, Graphics.TEXT_JUSTIFY_LEFT);
 
         // Bottom line: Next departure or status
-        if (state.departures.size() > 0) {
-            var next = state.departures[0];
+        for (var i = 0; i < rows.size(); i++) {
+            var next = rows[i];
+            var y = rowY + i * rowHeight;
             var countdownText = next.formatCountdown();
             var countdownColor = (next.minutesUntil <= 2) ? 0x00FF00 : Graphics.COLOR_WHITE;
 
             // Draw countdown right-aligned on the right edge
             var rightX = width - 4;
             dc.setColor(countdownColor, Graphics.COLOR_TRANSPARENT);
-            dc.drawText(rightX, height / 2, Graphics.FONT_TINY, countdownText, Graphics.TEXT_JUSTIFY_RIGHT);
+            dc.drawText(rightX, y, Graphics.FONT_TINY, countdownText, Graphics.TEXT_JUSTIFY_RIGHT);
 
             // Calculate remaining width for departure line/destination on the left
             var countdownWidth = dc.getTextWidthInPixels(countdownText, Graphics.FONT_TINY);
@@ -76,10 +95,11 @@ class RuterGlanceView extends WatchUi.GlanceView {
                 maxLeftWidth = 20;
             }
 
-            var leftText = self.fitDepartureText(dc, next, maxLeftWidth);
+            var leftText = self.fitDepartureText(dc, next, maxLeftWidth, rows.size() == 1);
             dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
-            dc.drawText(10, height / 2, Graphics.FONT_TINY, leftText, Graphics.TEXT_JUSTIFY_LEFT);
-        } else {
+            dc.drawText(10, y, Graphics.FONT_TINY, leftText, Graphics.TEXT_JUSTIFY_LEFT);
+        }
+        if (rows.size() == 0) {
             var summaryText = "Press to load";
             var summaryColor = Graphics.COLOR_WHITE;
 
@@ -115,11 +135,12 @@ class RuterGlanceView extends WatchUi.GlanceView {
     private function fitDepartureText(
         dc as Graphics.Dc,
         next as DepartureModel.DepartureItem,
-        maxWidth as Number
+        maxWidth as Number,
+        withMode as Boolean
     ) as String {
-        // 1. Try full: "BUS 375 Helsfyr"
+        // 1. Try full: "BUS 375 Helsfyr" (single row only, so two rows look alike)
         var fullText = next.modeLabel + " " + next.lineCode + " " + next.destination;
-        if (dc.getTextWidthInPixels(fullText, Graphics.FONT_TINY) <= maxWidth) {
+        if (withMode && dc.getTextWidthInPixels(fullText, Graphics.FONT_TINY) <= maxWidth) {
             return fullText;
         }
 

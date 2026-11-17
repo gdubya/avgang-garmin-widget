@@ -22,7 +22,7 @@ class RuterWidgetView extends WatchUi.View {
     public function onShow() as Void {
         var state = self._client.getState();
         var nowEpoch = Time.now().value();
-        if (state.status == :idle || (nowEpoch - state.lastUpdatedEpoch) > 60) {
+        if (state.status == :idle || state.isGlanceOnly || (nowEpoch - state.lastUpdatedEpoch) > 30) {
             self._client.refreshDepartures();
         } else {
             state.recalculateCountdowns(nowEpoch);
