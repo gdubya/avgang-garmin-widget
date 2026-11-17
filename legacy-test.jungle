@@ -1,0 +1,8 @@
+# Unit tests for the Connect IQ 1.x parser (source-legacy/LegacyParse.mc).
+# Toybox.Test is API 2.1, so build and run them on a modern profile:
+#   monkeyc -f legacy-test.jungle -d fenix6s -o bin/LegacyTest.prg -y developer_key.der -t
+#   monkeydo bin/LegacyTest.prg fenix6s -t
+project.manifest = manifest.xml
+
+base.sourcePath = test-legacy;source-legacy/LegacyParse.mc;source/DepartureModel.mc
+base.resourcePath = resources
