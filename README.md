@@ -106,6 +106,12 @@ Each of **Favorites 1–3** can carry its own filters, set in the **Garmin Conne
 * **GPS Nearest Stop** and **Pinned Stop** never use per-favorite filters, only the global **Favorite Lines**. Pinning a stop while on a filtered favorite pins the stop, not the filter.
 * When a filter is active the footer shows it: `Only bus`, `Lines 21`, or `bus 21` when both are set.
 
+### 6. Glance: Next Departure per Direction (optional)
+Turn on **Glance: Next Departure per Direction (2 rows)** in *App Settings* (off by default) and the glance shows two rows: the next departure for each of the first two directions (line + destination) on the board, after any filters. At a stop filtered to line `21` that is the next bus each way.
+
+* With only one direction on the board the glance shows one row, as before.
+* On glances too short for the stop name and two rows, the stop name is left out.
+
 ---
 
 ## Quick Start & Sideloading

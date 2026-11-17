@@ -246,4 +246,18 @@ module DepartureModel {
             self.departures = grouped;
         }
     }
+
+    // Glance rows: the next departure for each of the first two directions (line +
+    // destination). Expects a sorted board, so departures[0] is the earliest overall.
+    function nextPerDirection(departures as Array<DepartureItem>) as Array<DepartureItem> {
+        var rows = departures.slice(0, 1);
+        for (var i = 1; i < departures.size(); i++) {
+            var d = departures[i];
+            if ((!d.lineCode.equals(rows[0].lineCode) || !d.destination.equals(rows[0].destination)) &&
+                (rows.size() < 2 || d.expectedEpoch < rows[1].expectedEpoch)) {
+                rows = [rows[0], d] as Array<DepartureItem>;
+            }
+        }
+        return rows;
+    }
 }

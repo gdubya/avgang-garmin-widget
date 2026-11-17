@@ -258,4 +258,45 @@ module EnturParserTest {
 
         return true;
     }
+
+    (:test)
+    function testNextPerDirection(logger as Test.Logger) as Boolean {
+        var now = 1793540000;
+        var state = new DepartureModel.StopBoardState();
+        Test.assertEqual(0, DepartureModel.nextPerDirection(state.departures).size());
+
+        // Line 21 both ways: one row per direction, each the earliest of its direction
+        var h1 = new DepartureModel.DepartureItem("bus", "21", "Helsfyr", now + 120, now, true);
+        var h2 = new DepartureModel.DepartureItem("bus", "21", "Helsfyr", now + 300, now, true);
+        var t1 = new DepartureModel.DepartureItem("bus", "21", "Tjuvholmen", now + 420, now, true);
+        var t2 = new DepartureModel.DepartureItem("bus", "21", "Tjuvholmen", now + 900, now, true);
+        var rows = DepartureModel.nextPerDirection([h1, h2, t1, t2] as Array<DepartureModel.DepartureItem>);
+        Test.assertEqual(2, rows.size());
+        Test.assertEqual("Helsfyr", rows[0].destination);
+        Test.assertEqual("7m", rows[1].formatCountdown());
+
+        // One direction only: a single row, as with the setting off
+        rows = DepartureModel.nextPerDirection([h1, h2] as Array<DepartureModel.DepartureItem>);
+        Test.assertEqual(1, rows.size());
+
+        // Mixed lines, mode-first order: the second row is the earliest other direction (FB5 at +200s)
+        var fb = new DepartureModel.DepartureItem("coach", "FB5", "Oslo lufthavn", now + 200, now, true);
+        state.departures = [t1, fb, h2, h1] as Array<DepartureModel.DepartureItem>;
+        state.sortDepartures(true);
+        rows = DepartureModel.nextPerDirection(state.departures);
+        Test.assertEqual("Helsfyr", rows[0].destination);
+        Test.assertEqual("FB5", rows[1].lineCode);
+
+        // With a line filter applied the rows only come from the filtered board
+        var kept = [] as Array<DepartureModel.DepartureItem>;
+        for (var i = 0; i < state.departures.size(); i++) {
+            if (DepartureModel.matchesRouteFilter(state.departures[i].lineCode, ["21"] as Array<String>)) {
+                kept.add(state.departures[i]);
+            }
+        }
+        rows = DepartureModel.nextPerDirection(kept);
+        Test.assertEqual(2, rows.size());
+        Test.assertEqual("Tjuvholmen", rows[1].destination);
+        return true;
+    }
 }

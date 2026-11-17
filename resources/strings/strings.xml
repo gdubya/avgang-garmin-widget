@@ -17,6 +17,7 @@
     <string id="StopLines2Title">Favorite Stop 2: Lines (e.g. 21). Empty = use Favorite Lines</string>
     <string id="StopLines3Title">Favorite Stop 3: Lines (e.g. 21). Empty = use Favorite Lines</string>
     <string id="SortByModeTitle">Sort by Transport Mode First, Then Time</string>
+    <string id="GlanceShowDirectionsTitle">Glance: Next Departure per Direction (2 rows)</string>
     <string id="RouteFilterTitle">Favorite Lines (comma-separated, e.g. 17, 31). Empty = all lines</string>
     <string id="RouteFilterEnabledTitle">Only Show Favorite Lines</string>
     <string id="ClientNameTitle">Entur Client Identifier (ET-Client-Name)</string>
