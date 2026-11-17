@@ -16,6 +16,50 @@ module EnturParserTest {
     }
 
     (:test)
+    function testParseIso8601KnownEpochs(logger as Test.Logger) as Boolean {
+        Test.assertEqual(0, EnturApiClient.parseIso8601ToEpoch("1970-01-01T00:00:00Z"));
+        Test.assertEqual(1794826800, EnturApiClient.parseIso8601ToEpoch("2026-11-16T12:00:00+01:00"));
+        Test.assertEqual(1794826800, EnturApiClient.parseIso8601ToEpoch("2026-11-16T11:00:00Z"));
+        Test.assertEqual(1794826800, EnturApiClient.parseIso8601ToEpoch("2026-11-16T06:00:00-05:00"));
+        // Summer time, leap day and year boundary
+        Test.assertEqual(1782900000, EnturApiClient.parseIso8601ToEpoch("2026-07-01T12:00:00+02:00"));
+        Test.assertEqual(1835395200, EnturApiClient.parseIso8601ToEpoch("2028-02-29T00:00:00Z"));
+        Test.assertEqual(1798761599, EnturApiClient.parseIso8601ToEpoch("2027-01-01T00:59:59+01:00"));
+        Test.assert(EnturApiClient.parseIso8601ToEpoch("2026-11-16") == null);
+        Test.assert(EnturApiClient.parseIso8601ToEpoch("xxxx-11-16T12:00:00Z") == null);
+        return true;
+    }
+
+    (:test)
+    function testServerClockAndWallTimeFallback(logger as Test.Logger) as Boolean {
+        var now = 1794826800; // 2026-11-16T12:00:00+01:00
+        Test.assertEqual(now, EnturApiClient.parseServerEpoch({ "data" => { "trip" => { "dateTime" => "2026-11-16T12:00:00+01:00" } } }));
+        Test.assert(EnturApiClient.parseServerEpoch({ "data" => { "trip" => null } }) == null);
+        Test.assert(EnturApiClient.parseServerEpoch({ "errors" => [] }) == null);
+
+        var call = {
+            "expectedDepartureTime" => "2026-11-16T12:07:00+01:00",
+            "destinationDisplay" => { "frontText" => "Helsfyr" },
+            "serviceJourney" => { "journeyPattern" => { "line" => { "publicCode" => "21", "transportMode" => "bus" } } }
+        };
+        var item = EnturApiClient.parseEstimatedCall(call, now) as DepartureModel.DepartureItem;
+        Test.assertEqual("7m", item.formatCountdown());
+        item = EnturApiClient.parseEstimatedCall(call, null) as DepartureModel.DepartureItem;
+        Test.assertEqual("12:07", item.formatCountdown());
+
+        // Without Entur's clock nothing is pruned; with it, departed rows are
+        var state = new DepartureModel.StopBoardState();
+        state.departures = [item] as Array<DepartureModel.DepartureItem>;
+        state.recalculateCountdowns(null);
+        Test.assertEqual("12:07", state.departures[0].formatCountdown());
+        state.recalculateCountdowns(now + 420);
+        Test.assertEqual("Now", state.departures[0].formatCountdown());
+        state.recalculateCountdowns(now + 420 + 46);
+        Test.assertEqual(0, state.departures.size());
+        return true;
+    }
+
+    (:test)
     function testModeColorsAndLabels(logger as Test.Logger) as Boolean {
         Test.assertEqual("BUS", DepartureModel.DepartureItem.resolveModeLabel("bus"));
         Test.assertEqual("T-B", DepartureModel.DepartureItem.resolveModeLabel("metro"));

@@ -22,7 +22,7 @@ class RuterGlanceView extends WatchUi.GlanceView {
                 self._client.refreshDepartures();
             }
         } else {
-            state.recalculateCountdowns(nowEpoch);
+            state.recalculateCountdowns(self._client.serverNow());
         }
     }
 
@@ -32,7 +32,7 @@ class RuterGlanceView extends WatchUi.GlanceView {
         var state = self._client.getState();
 
         // Recalculate countdowns to keep minutesUntil accurate
-        state.recalculateCountdowns(Time.now().value());
+        state.recalculateCountdowns(self._client.serverNow());
 
         dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_BLACK);
         dc.clear();
@@ -62,7 +62,7 @@ class RuterGlanceView extends WatchUi.GlanceView {
         if (state.departures.size() > 0) {
             var next = state.departures[0];
             var countdownText = next.formatCountdown();
-            var countdownColor = (next.minutesUntil <= 2) ? 0x00FF00 : Graphics.COLOR_WHITE;
+            var countdownColor = (next.minutesUntil >= 0 && next.minutesUntil <= 2) ? 0x00FF00 : Graphics.COLOR_WHITE;
 
             // Draw countdown right-aligned on the right edge
             var rightX = width - 4;

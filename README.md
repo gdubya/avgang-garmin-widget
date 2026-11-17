@@ -36,6 +36,10 @@ A native Garmin Connect IQ widget displaying real-time public transport countdow
    - Configure one or more favorite lines (e.g. `17, 31`) to only show those routes at whichever stop is active.
    - Optionally give each of **Favorites 1–3** its own transport modes (e.g. `bus`) and lines (e.g. `21`).
 
+5. **Countdowns That Don't Depend on the Watch Clock**:
+   - Minutes are counted against Entur's own clock, so a watch with a wrong date or time still shows correct countdowns.
+   - If Entur's clock is unavailable, rows show the departure time (`16:35`) instead of minutes.
+
 ---
 
 ## On-Watch Controls
