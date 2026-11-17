@@ -18,9 +18,9 @@ class RuterGlanceView extends WatchUi.GlanceView {
     public function onShow() as Void {
         var state = self._client.getState();
         var nowEpoch = Time.now().value();
-        if (state.status == :idle || (nowEpoch - state.lastUpdatedEpoch) > 60 || state.departures.size() == 0) {
+        if (state.status == :idle || (nowEpoch - state.lastUpdatedEpoch) > 30 || state.departures.size() == 0) {
             if (state.status != :loading) {
-                self._client.refreshDepartures();
+                self._client.refreshGlanceDepartures();
             }
         } else {
             state.recalculateCountdowns(nowEpoch);

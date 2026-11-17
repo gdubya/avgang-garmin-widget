@@ -172,6 +172,7 @@ module DepartureModel {
         public var status as Symbol = :idle;
         public var errorMessage as String = "";
         public var lastUpdatedEpoch as Number = 0;
+        public var isGlanceOnly as Boolean = false;
         // Line public codes the current board is filtered to (empty = all lines)
         public var routeFilter as Array<String> = [] as Array<String>;
         // Transport modes the current board is filtered to (empty = all modes)

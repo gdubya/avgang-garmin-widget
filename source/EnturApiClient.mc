@@ -16,10 +16,13 @@ class EnturApiClient {
     public static const GRAPHQL_URL = "https://api.entur.io/journey-planner/v3/graphql";
     public static const GEOCODER_URL = "https://api.entur.io/geocoder/v1/autocomplete";
     public static const MAX_DEPARTURES = 8;
+    public static const GLANCE_DEPARTURES = 1;
+    public static const GLANCE_DIRECTION_DEPARTURES = 4;
     // Resolved line IDs are cached for a week; line IDs are very stable
     public static const LINE_CACHE_TTL_SEC = 604800;
 
     private var _state as DepartureModel.StopBoardState;
+    private var _maxDepartures as Number = GLANCE_DEPARTURES;
     private var _pendingQueryName as String = "";
     private var _pendingLineKey as String = "";
     // GraphQL argument fragment restricting estimatedCalls to favourite lines ("" = none)
@@ -140,7 +143,19 @@ class EnturApiClient {
     }
 
     public function refreshDepartures() as Void {
-        System.println("refreshDepartures called");
+        self.startRefresh(MAX_DEPARTURES);
+    }
+
+    public function refreshGlanceDepartures() as Void {
+        var count = (Properties.getValue("glanceShowDirections") == true)
+            ? GLANCE_DIRECTION_DEPARTURES
+            : GLANCE_DEPARTURES;
+        self.startRefresh(count);
+    }
+
+    private function startRefresh(maxDepartures as Number) as Void {
+        System.println("refreshDepartures called (max=" + maxDepartures.toString() + ")");
+        self._maxDepartures = maxDepartures;
         self._state.status = :loading;
         self._state.errorMessage = "";
         WatchUi.requestUpdate();
@@ -389,8 +404,10 @@ class EnturApiClient {
     public function fetchByStopId(stopId as String) as Void {
         System.println("fetchByStopId: " + stopId);
         var gql = "{stopPlace(id:\"" + stopId + "\"){id name estimatedCalls(numberOfDepartures:" +
-            MAX_DEPARTURES.toString() + self._lineWhitelistArg + self._modeWhitelistArg +
-            "){realtime expectedDepartureTime destinationDisplay{frontText}serviceJourney{journeyPattern{line{publicCode transportMode}}}}}}";
+            self._maxDepartures.toString() + self._lineWhitelistArg + self._modeWhitelistArg +
+            "){realtime expectedDepartureTime destinationDisplay{frontText}serviceJourney{line{publicCode transportMode}}}}}";
+        self._lineWhitelistArg = "";
+        self._modeWhitelistArg = "";
 
         self.sendGraphQlRequest(gql, method(:onReceiveGraphQlResponse));
     }
@@ -399,8 +416,10 @@ class EnturApiClient {
         var gql = "{nearest(latitude:" + lat.format("%.5f") +
             ",longitude:" + lon.format("%.5f") +
             ",maximumResults:1,maximumDistance:1000,filterByPlaceTypes:[stopPlace]){edges{node{distance place{... on StopPlace{id name estimatedCalls(numberOfDepartures:" +
-            MAX_DEPARTURES.toString() + self._lineWhitelistArg +
-            "){realtime expectedDepartureTime destinationDisplay{frontText}serviceJourney{journeyPattern{line{publicCode transportMode}}}}}}}}}}";
+            self._maxDepartures.toString() + self._lineWhitelistArg +
+            "){realtime expectedDepartureTime destinationDisplay{frontText}serviceJourney{line{publicCode transportMode}}}}}}}}}";
+        self._lineWhitelistArg = "";
+        self._modeWhitelistArg = "";
 
         self.sendGraphQlRequest(gql, method(:onReceiveGraphQlResponse));
     }
@@ -445,6 +464,8 @@ class EnturApiClient {
             if (!parsed) {
                 self._state.status = :error;
                 self._state.errorMessage = "Empty stop data";
+            } else {
+                self._state.isGlanceOnly = (self._maxDepartures < MAX_DEPARTURES);
             }
         } else {
             self._state.status = :error;
